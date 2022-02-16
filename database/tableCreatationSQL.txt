@@ -1,0 +1,52 @@
+create schema mca;
+
+
+grant usage on schema mca to public;
+grant create on schema mca to public;
+
+create table mca.cell_microscopy_result
+(
+    id serial,
+    patient_id integer,
+    name_of_image varchar,
+    infected boolean,
+    number_of_rbc integer,
+    trophozoite integer,
+    unidentified integer,
+    ring integer,
+    schizont integer,
+    gametocyte integer,
+    leukocyte integer,
+    total_infection integer,
+    result_date timestamp
+);
+
+create table mca.patient
+(
+    id serial,
+    name varchar,
+    email varchar unique,
+    phone_number varchar(10) unique,
+    age integer,
+    address varchar,
+    state varchar,
+    pincode integer
+);
+
+create table mca.login
+(
+    username varchar,
+    password bytea,
+    patient_id integer
+);
+
+create table mca.detection_bbox
+(
+    id serial,
+    image_id integer,
+    xmin_coord numeric,
+    ymin_coord numeric,
+    xmax_coord numeric,
+    ymax_coord numeric,
+    category varchar
+);

@@ -162,8 +162,8 @@ class Results:
 
         dbConnect.closeConnection()
 
-        data_all["patient_details"] = patient_data
-        data_all["result_details"] = result_data
+        data_all["patient_data"] = patient_data
+        data_all["result_data"] = result_data
         return data_all
     
     def getAllResult(

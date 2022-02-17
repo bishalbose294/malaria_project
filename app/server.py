@@ -119,7 +119,16 @@ def uploadNewSampleAPI():
             gametocyte,
             leukocyte,
         )
-        return jsonify({"status": result[0], "id": result[1], "message": result[2]})
+
+
+        data = res.getResult(int(result[1]))
+        data["result_data"]["id"] = result[1]
+        data["result_data"].pop("patient_id")
+        data["result_data"].pop("name_of_image")
+
+        # return jsonify({"status": result[0], "id": result[1], "message": result[2]})
+
+        return render_template("sample_details.html", new_sample=True, data = data)
     except Exception as e:
         traceback.print_exc()
         print("ERROR = " + str(e))
@@ -176,6 +185,7 @@ def fetchPatientAPI():
             data[columnList[i]] = result[i]
 
         return jsonify(data)
+
     except Exception as e:
         traceback.print_exc()
         print("ERROR = " + str(e))
@@ -189,15 +199,18 @@ def fetchResultAPI():
         id = int(content["id"])
         result = Results()
         data = result.getResult(id)
-        data["result_details"].pop("patient_id")
-        data["result_details"].pop("name_of_image")
-        return jsonify(
-            {
-                "status": True,
-                "patient_details": data["patient_details"],
-                "result_details": data["result_details"],
-            }
-        )
+        data["result_data"]["id"] = id
+        data["result_data"].pop("patient_id")
+        data["result_data"].pop("name_of_image")
+        # return jsonify(
+        #     {
+        #         "status": True,
+        #         "patient_details": data["patient_data"],
+        #         "result_details": data["result_data"],
+        #     }
+        # )
+
+        return render_template("sample_details.html", new_sample=False, data=data)
     except Exception as e:
         traceback.print_exc()
         print("ERROR = " + str(e))
@@ -218,6 +231,7 @@ def fetchAllResultAPI():
         print("ERROR = " + str(e))
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message = str(e))
+
 
 @app.route("/predict", methods=["POST"])
 def predictAPI():

@@ -27,7 +27,7 @@ class AppConstants:
         return [
             "patient_id",
             "name_of_image",
-            "infected",
+            "infection_status",
             "number_of_rbc",
             "trophozoite",
             "unidentified",

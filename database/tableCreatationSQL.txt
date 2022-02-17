@@ -9,7 +9,7 @@ create table mca.cell_microscopy_result
     id serial,
     patient_id integer,
     name_of_image varchar,
-    infected boolean,
+    infection_status boolean,
     number_of_rbc integer,
     trophozoite integer,
     unidentified integer,

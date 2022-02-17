@@ -131,7 +131,7 @@ def uploadNewSampleAPI():
 @app.route("/fetchPatientDetails", methods=["POST"])
 def fetchPatientAPI():
     try:
-        content = dict(request.get_json())
+        content = dict(request.form)
         keys = [x.lower() for x in list(content.keys())]
         columnName = None
         columnValue = None
@@ -185,7 +185,7 @@ def fetchPatientAPI():
 @app.route("/fetchResult", methods=["POST"])
 def fetchResultAPI():
     try:
-        content = request.get_json()
+        content = request.form
         id = int(content["id"])
         result = Results()
         data = result.getResult(id)
@@ -208,7 +208,7 @@ def fetchResultAPI():
 @app.route("/fetchAllResult", methods=["POST"])
 def fetchAllResultAPI():
     try:
-        content = request.get_json()
+        content = request.form
         patientId = int(content["patientId"])
         result = Results()
         all_results = result.getAllResult(patientId)
@@ -222,7 +222,7 @@ def fetchAllResultAPI():
 @app.route("/predict", methods=["POST"])
 def predictAPI():
     try:
-        content = dict(request.get_json())
+        content = dict(request.form)
         id = int(content["id"])
         mlProcess = MLProcess()
         result = mlProcess.model_predict(id)
@@ -238,7 +238,7 @@ def predictAPI():
 @app.route("/generateReport", methods=["POST"])
 def generateReportAPI():
     try:
-        content = request.get_json()
+        content = request.form
         id = int(content["id"])
         report = Report()
         result = report.generateReport(id)
@@ -254,7 +254,7 @@ def generateReportAPI():
 @app.route("/downloadReport", methods=["POST"])
 def downloadReportAPI():
     try:
-        content = request.get_json()
+        content = request.form
         id = int(content["id"])
         config = ConfigConnect()
         root = config.get_section_config("ROOT")["cwd"]

@@ -64,6 +64,50 @@
             cursor: pointer;
             margin-top: 1rem;
         }
+
+
+        .styled-table {
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+            border: 2px solid #464E2E;
+        }
+
+        .styled-table thead tr {
+            background-color: #009879;
+            color: #ffffff;
+            text-align: left;
+        }
+
+        .styled-table th,
+        .styled-table td {
+            padding: 9px 10px;
+            height: 15px;
+            width: 150px;
+        }
+
+        .styled-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .styled-table tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+
+        .styled-table tbody tr:last-of-type {
+            border-bottom: 2px solid #009879;
+        }
+
+        .styled-table tbody tr.active-row {
+            font-weight: bold;
+            color: #009879;
+        }
     </style>
 </head>
 
@@ -75,33 +119,178 @@
     </center>
     <div class="container">
 
-        {{ data["patient_data"]["name"] }}<br>
-        {{ data["patient_data"]["email"] }}<br>
-        {{ data["patient_data"]["phone_number"] }}<br>
-        {{ data["patient_data"]["age"] }}<br>
-        {{ data["patient_data"]["address"] }}<br>
-        {{ data["patient_data"]["state"] }}<br>
-        {{ data["patient_data"]["pincode"] }}<br>
-
+        <table class="styled-table">
+            <tr>
+                <td>
+                    <b>Name : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["name"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Email : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["email"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Phone Number : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["phone_number"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Age : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["age"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Address : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["address"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>State : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["state"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Pincode : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["pincode"] }}</i>
+                </td>
+            </tr>
+        </table>
 
         {% if new_sample %}
         <p>
-            Sample ID = {{ data["result_details"]["id"] }} <br>
-            Sample Upload Date = {{ data["result_details"]["result_date"] }} <br>
+        <table class="styled-table">
+            <tr>
+                <td>
+                    <b>Sample ID : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_details"]["id"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Sample Upload Date : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_details"]["result_date"] }}</i>
+                </td>
+            </tr>
+        </table>
         </p>
         {% else %}
         <p>
-            {{ data["result_data"]["infection_status"] }}<br>
-            {{ data["result_data"]["number_of_rbc"] }}<br>
-            {{ data["result_data"]["trophozoite"] }}<br>
-            {{ data["result_data"]["unidentified"] }}<br>
-            {{ data["result_data"]["ring"] }}<br>
-            {{ data["result_data"]["schizont"] }}<br>
-            {{ data["result_data"]["gametocyte"] }}<br>
-            {{ data["result_data"]["leukocyte"] }}<br>
-            {{ data["result_data"]["total_infection"] }}<br>
-            {{ data["result_data"]["result_date"] }}<br>
-
+        <table class="styled-table">
+            <tr>
+                <td>
+                    <b>Sample ID : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_details"]["id"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Infection : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["infection_status"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Number of RBC : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["number_of_rbc"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Trophozoite : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["trophozoite"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Ring : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["ring"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Schizont : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["schizont"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Gametocyte : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["gametocyte"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Leukocyte : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["leukocyte"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Unidentified : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["unidentified"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Total Infection : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["total_infection"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Result Date : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["result_date"] }}</i>
+                </td>
+            </tr>
+        </table>
         </p>
         {% endif %}
     </div>

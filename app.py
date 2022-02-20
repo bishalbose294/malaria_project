@@ -1,7 +1,6 @@
-from app.configUtil import ConfigConnect
-from app import app
 import os
-
+from app import app
+from app.configUtil import ConfigConnect
 
 if __name__ == "__main__":
 
@@ -20,5 +19,8 @@ if __name__ == "__main__":
     
     templates_folder = configParser.get_section_config("dir")["templates_folder"]
     app.template_folder = os.path.join(root, templates_folder)
+
+    static_folder = configParser.get_section_config("dir")["static_folder"]
+    app.static_folder = os.path.join(root, static_folder)
 
     app.run(host=host, port=port)

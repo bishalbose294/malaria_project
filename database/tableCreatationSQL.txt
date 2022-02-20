@@ -9,6 +9,7 @@ create table mca.cell_microscopy_result
     id serial,
     patient_id integer,
     name_of_image varchar,
+    processed boolean,
     infection_status boolean,
     number_of_rbc integer,
     trophozoite integer,
@@ -18,7 +19,16 @@ create table mca.cell_microscopy_result
     gametocyte integer,
     leukocyte integer,
     total_infection integer,
-    result_date timestamp
+    upload_date timestamp,
+    processing_date timestamp
+);
+
+create table mca.report
+(
+    id serial,
+    cell_microscopy_result_id integer,
+    report_filename varchar,
+    report_generation_date timestamp,
 );
 
 create table mca.patient
@@ -35,6 +45,7 @@ create table mca.patient
 
 create table mca.login
 (
+    id serial,
     username varchar,
     password bytea,
     patient_id integer
@@ -43,7 +54,7 @@ create table mca.login
 create table mca.detection_bbox
 (
     id serial,
-    image_id integer,
+    cell_microscopy_result_id integer,
     xmin_coord numeric,
     ymin_coord numeric,
     xmax_coord numeric,

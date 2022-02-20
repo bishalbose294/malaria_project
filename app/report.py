@@ -1,12 +1,45 @@
 import pdfkit
+from app.dbUtil import DbConnect
 from app.results import Results
 from app.configUtil import ConfigConnect
-from configuration.contstants import AppConstants
-from app.dbUtil import DbConnect
 import os
+import datetime
+
+from configuration.contstants import AppConstants
 
 
 class Report:
+
+    def isReportGenerated(
+        self,
+        cell_microscopy_result_id,
+    ):
+        dbConnect = DbConnect()
+        dbConnect.createConnection()
+        dbConnect.setSchema("mca")
+        dbConnect.setTableName("report")
+
+        columnName = "cell_microscopy_result_id"
+        columnValue = cell_microscopy_result_id
+        existance = dbConnect.chechExistance(columnName, columnValue)
+
+        dbConnect.closeConnection()
+        return existance
+
+    def save_report_to_db(self, cell_microscopy_result_id, filename):
+        const = AppConstants()
+        recordCreationTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        columnList = const.report_TableColumns()
+        columnValues = [cell_microscopy_result_id,
+                        filename, recordCreationTime]
+
+        dbConnect = DbConnect()
+        dbConnect.createConnection()
+        dbConnect.setSchema("mca")
+        dbConnect.setTableName("report")
+        dbConnect.insertRecord(columnList, columnValues)
+        dbConnect.closeConnection()
+
     def generateReport(
         self,
         cell_microscopy_result_id,
@@ -16,8 +49,8 @@ class Report:
         result = Results()
         data_all = result.getResult(cell_microscopy_result_id)
 
-        patient_data = data_all["patient_details"]
-        result_data = data_all["result_details"]
+        patient_data = data_all["patient_data"]
+        result_data = data_all["result_data"]
 
         root_folder = config.get_section_config("ROOT")["cwd"]
         dict_values = config.get_section_config("DIR")
@@ -139,7 +172,11 @@ class Report:
                                     </tr>
                                     <tr>
                                         <td>Result Date:</td>
-                                        <td>{result_data["result_date"]}</td>
+                                        <td>{result_data["sample_upload_date"]}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Result Date:</td>
+                                        <td>{result_data["processing_date"]}</td>
                                     </tr>
                                 </table>
                             </td>
@@ -189,6 +226,7 @@ class Report:
             css=css_path,
         )
 
+        self.save_report_to_db(cell_microscopy_result_id, name_of_pdf_report)
         return (True, "Report Generated and Saved.")
 
     pass

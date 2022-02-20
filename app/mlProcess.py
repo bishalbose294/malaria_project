@@ -111,7 +111,8 @@ class MLProcess:
         # load XML
         boxes, classes = self.extract_boxes(result_id)
         # create one array for all masks, each on a different channel
-        masks = np.zeros([image.shape[0], image.shape[1], len(boxes)], dtype="uint8")
+        masks = np.zeros([image.shape[0], image.shape[1],
+                         len(boxes)], dtype="uint8")
         # create masks
         class_ids = list()
         for i in range(len(boxes)):
@@ -141,7 +142,7 @@ class MLProcess:
             max_dim=model_cfg.IMAGE_MAX_DIM,
             mode=model_cfg.IMAGE_RESIZE_MODE,
         )
-        
+
         config = tf.compat.v1.ConfigProto(
             device_count={"GPU": 1},
             intra_op_parallelism_threads=1,
@@ -162,18 +163,17 @@ class MLProcess:
         bbox = boxes
         masks = masks
         class_names = classes
-        scores = r["scores"]
-        
+
         const = AppConstants()
         class_id_dict = const.class_ids()
-        infected = False
+        infection_status = False
         freq = {}
         for item in list(class_id_dict.keys()):
             freq[item] = class_names.count(item)
             if item != "rbc" and freq[item] > 0:
-                infected = True
+                infection_status = True
 
-        image_id = result_id
+        cell_microscopy_result_id = result_id
         number_of_rbc = freq["rbc"]
         trophozoite = freq["trophozoite"]
         unidentified = freq["unidentified"]
@@ -188,10 +188,17 @@ class MLProcess:
             class_names,
             name_of_image,
         )
+
+        self.save_prediction_to_db(
+            cell_microscopy_result_id,
+            boxes,
+            class_names,
+        )
+
         res = Results()
         res.updateRecordToDB(
-            image_id,
-            infected,
+            cell_microscopy_result_id,
+            infection_status,
             number_of_rbc,
             trophozoite,
             unidentified,
@@ -201,7 +208,7 @@ class MLProcess:
             leukocyte,
         )
 
-        return (True, "Records Updated in DB and Prediction saved in Folder.")
+        return (True, "Records Updated in DB and Prediction saved in Folder.", name_of_image)
 
     def save_prediction_image(
         self,
@@ -252,4 +259,30 @@ class MLProcess:
         )
         cv2.imwrite(image_save_location, masked_image)
 
+    def save_prediction_to_db(
+        self,
+        cell_microscopy_result_id,
+        boxes,
+        class_names,
+    ):
+        const = AppConstants()
+        dbConnect = DbConnect()
+        columnList = const.detection_bbox_TableColumns()
+
+        valuesList = list()
+
+        for i in range(len(boxes)):
+            ymin_coord, xmin_coord, ymax_coord, xmax_coord = boxes[i]
+            category = class_names[i]
+            valuesList.append([cell_microscopy_result_id, xmin_coord,
+                              ymin_coord, xmax_coord, ymax_coord, category])
+
+        dbConnect.createConnection()
+        dbConnect.setSchema("mca")
+        dbConnect.setTableName("detection_bbox")
+
+        dbConnect.insertRecords(columnList, valuesList)
+
+        dbConnect.closeConnection()
+        pass
     pass

@@ -27,6 +27,7 @@ class AppConstants:
         return [
             "patient_id",
             "name_of_image",
+            "processed",
             "infection_status",
             "number_of_rbc",
             "trophozoite",
@@ -36,19 +37,29 @@ class AppConstants:
             "gametocyte",
             "leukocyte",
             "total_infection",
-            "result_date",
+            "upload_date",
+            "processing_date",
         ]
 
     def detection_bbox_TableColumns(
         self,
     ):
         return [
-            "image_id",
+            "cell_microscopy_result_id",
             "xmin_coord",
             "ymin_coord",
             "xmax_coord",
             "ymax_coord",
             "category",
+        ]
+
+    def report_TableColumns(
+        self,
+    ):
+        return [
+            "cell_microscopy_result_id",
+            "report_filename",
+            "report_generation_date",
         ]
 
     def class_ids(

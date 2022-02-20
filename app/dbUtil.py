@@ -66,22 +66,26 @@ class DbConnect:
         self.cursor = self.conn.cursor()
         print("\nCursor Created...\n")
 
-    def fetchCount(
+    def chechExistance(
         self,
-        primaryKey,
+        columnName,
+        columnValue,
     ):
         query = (
-            "select COUNT("
-            + primaryKey
-            + ") from "
+            "select COUNT(*) from "
             + self.schema
             + "."
             + self.tableName
+            + " where "
+            + str(columnName)
+            + " = %s"
         )
-        self.cursor.execute(query)
+        self.cursor.execute(query, (columnValue,))
         row = self.cursor.fetchone()
         print("\nRecord Fetched Successfully...\n")
-        return row[0]
+        if row[0] == 0:
+            return False
+        return True
 
     def fetchOne(
         self,
@@ -110,6 +114,7 @@ class DbConnect:
         columnList,
         primaryKey,
         pkValue,
+        orderBy=None,
     ):
         query = (
             "select "
@@ -122,6 +127,8 @@ class DbConnect:
             + str(primaryKey)
             + " = %s"
         )
+        if orderBy:
+            query += " order by "+str(orderBy)
         self.cursor.execute(query, (pkValue,))
         row = self.cursor.fetchall()
         print("\nRecords Fetched Successfully...\n")

@@ -3,11 +3,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> Home </title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <title> Home </title>
+    <title> Login Page </title>
     <style>
         Body {
             font-family: Calibri, Helvetica, sans-serif;
@@ -17,7 +13,7 @@
         button {
             background-color: #4CAF50;
             width: 100%;
-            color: orange;
+            color: yellow;
             padding: 15px;
             margin: 10px 0px;
             border: none;
@@ -48,7 +44,6 @@
             margin: 10px 5px;
         }
 
-
         .container {
             padding: 25px;
             width: 400px;
@@ -56,37 +51,28 @@
             margin-left: auto;
             background-color: lightblue;
         }
-
-        input[type=file] {
-            background-color: rgb(95, 228, 102);
-            color: white;
-            padding: 0.5rem;
-            font-family: sans-serif;
-            border: 2px solid black;
-            border-radius: 0.3rem;
-            cursor: pointer;
-            margin-top: 1rem;
-        }
     </style>
 </head>
 
 <body>
     <center>
-        <h1> Smart Malaria Detection - Home </h1>
+        <h1> Smart Malaria Detection </h1>
         <h5>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
             - AI system to Detect & Classify Malaria Viruses from Blood Sample Images</h5>
     </center>
-    <div class="container">
-        <h3>Welcome {{username}}</h3>
-        <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#upload">Upload New
-            Sample</button>
-        <div id="upload" class="collapse">
-            <form action={{ url_for( "uploadNewSampleAPI" ) }} method="POST" enctype="multipart/form-data">
-                <input type="file" name="file" id="file" accept="image/*" />
-                <input type="hidden" name="patient_id" id="patient_id" value={{ patient_id }} /><br>
-                <button type="submit" class="cancelbtn">Upload</button>
-            </form>
+    <form method="POST" action={{ url_for( "loginAPI" ) }}>
+        <div class="container">
+            <label>Username : </label>
+            <input type="text" placeholder="Enter Username" name="username" required>
+            <label>Password : </label>
+            <input type="password" placeholder="Enter Password" name="password" required>
+            <button type="submit" class="cancelbtn">Login</button>
+            <button type="reset" class="cancelbtn"> Clear</button>
         </div>
+    </form>
+    <div class="container">
+        <label style="color:red">{{ registration_message }}</label> </br>
+        <a href={{ url_for( "navigateToRegistrationPageAPI" ) }}>Register</a>
     </div>
 </body>
 

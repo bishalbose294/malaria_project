@@ -3,7 +3,7 @@ from app.dbUtil import DbConnect
 from app.results import Results
 from app.configUtil import ConfigConnect
 import os
-import datetime
+from datetime import datetime
 
 from configuration.contstants import AppConstants
 
@@ -26,7 +26,11 @@ class Report:
         dbConnect.closeConnection()
         return existance
 
-    def save_report_to_db(self, cell_microscopy_result_id, filename):
+    def save_report_to_db(
+        self, 
+        cell_microscopy_result_id, 
+        filename,
+    ):
         const = AppConstants()
         recordCreationTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         columnList = const.report_TableColumns()
@@ -39,6 +43,23 @@ class Report:
         dbConnect.setTableName("report")
         dbConnect.insertRecord(columnList, columnValues)
         dbConnect.closeConnection()
+
+    def getReportName(
+        self, 
+        cell_microscopy_result_id,
+    ):
+
+        columnList = ["report_filename"]
+        primaryKey = "cell_microscopy_result_id"
+        pkValue = cell_microscopy_result_id
+
+        dbConnect = DbConnect()
+        dbConnect.createConnection()
+        dbConnect.setSchema("mca")
+        dbConnect.setTableName("report")
+        row = dbConnect.fetchOne(columnList, primaryKey, pkValue)
+        dbConnect.closeConnection()
+        return row[0]
 
     def generateReport(
         self,
@@ -172,7 +193,7 @@ class Report:
                                     </tr>
                                     <tr>
                                         <td>Result Date:</td>
-                                        <td>{result_data["sample_upload_date"]}</td>
+                                        <td>{result_data["upload_date"]}</td>
                                     </tr>
                                     <tr>
                                         <td>Result Date:</td>
@@ -227,6 +248,6 @@ class Report:
         )
 
         self.save_report_to_db(cell_microscopy_result_id, name_of_pdf_report)
-        return (True, "Report Generated and Saved.")
+        return (True, "Report Generated and Saved. Please download to view.")
 
     pass

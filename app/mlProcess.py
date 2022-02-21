@@ -15,6 +15,7 @@ import skimage
 import pandas as pd
 import numpy as np
 import cv2
+import shutil
 
 
 class MLProcess:
@@ -28,24 +29,13 @@ class MLProcess:
         info_file = os.path.join(root, info_folder, name_of_file)
         self.info = pd.read_csv(info_file)
 
-    def load_image(
+    def __load_image(
         self,
-        result_id,
+        cell_microscopy_result_id,
     ):
 
-        dbConnect = DbConnect()
-        dbConnect.createConnection()
-        dbConnect.setSchema("mca")
-        dbConnect.setTableName("cell_microscopy_result")
-
-        columnList = ["name_of_image"]
-        primaryKey = "id"
-        pkValue = result_id
-        data = dbConnect.fetchOne(columnList, primaryKey, pkValue)
-
-        dbConnect.closeConnection()
-
-        name_of_image = data[0]
+        result = Results()
+        name_of_image = result.getNameOfImage(cell_microscopy_result_id)
 
         config = ConfigConnect()
 
@@ -68,24 +58,12 @@ class MLProcess:
             image = image[..., :3]
         return image, name_of_image
 
-    def extract_boxes(
+    def __extract_boxes(
         self,
-        result_id,
+        cell_microscopy_result_id,
     ):
-
-        dbConnect = DbConnect()
-        dbConnect.createConnection()
-        dbConnect.setSchema("mca")
-        dbConnect.setTableName("cell_microscopy_result")
-
-        columnList = ["name_of_image"]
-        primaryKey = "id"
-        pkValue = result_id
-        data = dbConnect.fetchOne(columnList, primaryKey, pkValue)
-
-        dbConnect.closeConnection()
-
-        name_of_image = data[0]
+        result = Results()
+        name_of_image = result.getNameOfImage(cell_microscopy_result_id)
 
         # extract each bounding box
         boxes = list()
@@ -102,14 +80,14 @@ class MLProcess:
             classes.append(class_name)
         return boxes, classes
 
-    def load_mask(self, result_id):
+    def __load_mask(self, cell_microscopy_result_id):
 
         const = AppConstants()
         class_id_dict = const.class_ids()
 
-        image, _ = self.load_image(result_id)
+        image, _ = self.__load_image(cell_microscopy_result_id)
         # load XML
-        boxes, classes = self.extract_boxes(result_id)
+        boxes, classes = self.__extract_boxes(cell_microscopy_result_id)
         # create one array for all masks, each on a different channel
         masks = np.zeros([image.shape[0], image.shape[1],
                          len(boxes)], dtype="uint8")
@@ -123,94 +101,7 @@ class MLProcess:
             class_ids.append(class_id_dict[classes[i]])
         return masks, np.asarray(class_ids)
 
-    def model_predict(
-        self,
-        result_id,
-    ):
-        image, name_of_image = self.load_image(result_id)
-
-        boxes, classes = self.extract_boxes(result_id)
-
-        masks, class_ids = self.load_mask(result_id)
-
-        model_cfg = ModelConfig()
-
-        inp_image, _, scale, padding, crop = resize_image(
-            image,
-            min_dim=model_cfg.IMAGE_MIN_DIM,
-            min_scale=model_cfg.IMAGE_MIN_SCALE,
-            max_dim=model_cfg.IMAGE_MAX_DIM,
-            mode=model_cfg.IMAGE_RESIZE_MODE,
-        )
-
-        config = tf.compat.v1.ConfigProto(
-            device_count={"GPU": 1},
-            intra_op_parallelism_threads=1,
-            allow_soft_placement=True,
-        )
-
-        config.gpu_options.allow_growth = True
-        config.gpu_options.per_process_gpu_memory_fraction = 0.6
-
-        session = tf.compat.v1.Session(config=config)
-        graph = tf.compat.v1.get_default_graph()
-
-        model = ModelClass(session, graph)
-
-        results = model.predict_model(inp_image)
-
-        r = results[0]
-        bbox = boxes
-        masks = masks
-        class_names = classes
-
-        const = AppConstants()
-        class_id_dict = const.class_ids()
-        infection_status = False
-        freq = {}
-        for item in list(class_id_dict.keys()):
-            freq[item] = class_names.count(item)
-            if item != "rbc" and freq[item] > 0:
-                infection_status = True
-
-        cell_microscopy_result_id = result_id
-        number_of_rbc = freq["rbc"]
-        trophozoite = freq["trophozoite"]
-        unidentified = freq["unidentified"]
-        ring = freq["ring"]
-        schizont = freq["schizont"]
-        gametocyte = freq["gametocyte"]
-        leukocyte = freq["leukocyte"]
-
-        self.save_prediction_image(
-            image,
-            bbox,
-            class_names,
-            name_of_image,
-        )
-
-        self.save_prediction_to_db(
-            cell_microscopy_result_id,
-            boxes,
-            class_names,
-        )
-
-        res = Results()
-        res.updateRecordToDB(
-            cell_microscopy_result_id,
-            infection_status,
-            number_of_rbc,
-            trophozoite,
-            unidentified,
-            ring,
-            schizont,
-            gametocyte,
-            leukocyte,
-        )
-
-        return (True, "Records Updated in DB and Prediction saved in Folder.", name_of_image)
-
-    def save_prediction_image(
+    def __save_prediction_image(
         self,
         image,
         boxes,
@@ -259,7 +150,7 @@ class MLProcess:
         )
         cv2.imwrite(image_save_location, masked_image)
 
-    def save_prediction_to_db(
+    def __save_prediction_to_db(
         self,
         cell_microscopy_result_id,
         boxes,
@@ -284,5 +175,136 @@ class MLProcess:
         dbConnect.insertRecords(columnList, valuesList)
 
         dbConnect.closeConnection()
-        pass
+
+    def __checkIfImageNeedRetraining(self, cell_microscopy_result_id):
+        result = Results()
+        filename = result.getNameOfImage(cell_microscopy_result_id)
+        if self.info[self.info.image_name == filename].shape[0] == 0:
+            return True
+        return False
+
+    def __save_new_image(
+        self,
+        cell_microscopy_result_id,
+    ):
+        result = Results()
+        fileName = result.getNameOfImage(cell_microscopy_result_id)
+
+        config = ConfigConnect()
+        root = config.get_section_config("Root")["cwd"]
+        images_folder = config.get_section_config("dir")[
+            "images_folder"
+        ]
+
+        retrain_folder = config.get_section_config("dir")[
+            "retrain_folder"
+        ]
+
+        src = os.path.join(root, images_folder, fileName)
+        dest = os.path.join(root, retrain_folder, fileName)
+
+        shutil.copy(src, dest)
+
+        dbConnect = DbConnect()
+        dbConnect.createConnection()
+        dbConnect.setSchema("mca")
+        dbConnect.setTableName("cell_microscopy_result")
+
+        updateColumn = "retrain"
+        updateValue = True
+        primaryKey = "id"
+        pkValue = cell_microscopy_result_id
+        dbConnect.updateRecord(updateColumn, updateValue, primaryKey, pkValue)
+        dbConnect.closeConnection()
+
+    def model_predict(
+        self,
+        cell_microscopy_result_id,
+    ):
+        if self.__checkIfImageNeedRetraining(cell_microscopy_result_id):
+            self.__save_new_image(cell_microscopy_result_id)
+            return (False, "This Sample has been submitted for further inspection. Please expect delay in response.")
+
+        image, name_of_image = self.__load_image(cell_microscopy_result_id)
+
+        boxes, classes = self.__extract_boxes(cell_microscopy_result_id)
+
+        masks, class_ids = self.__load_mask(cell_microscopy_result_id)
+
+        model_cfg = ModelConfig()
+
+        inp_image, _, scale, padding, crop = resize_image(
+            image,
+            min_dim=model_cfg.IMAGE_MIN_DIM,
+            min_scale=model_cfg.IMAGE_MIN_SCALE,
+            max_dim=model_cfg.IMAGE_MAX_DIM,
+            mode=model_cfg.IMAGE_RESIZE_MODE,
+        )
+
+        config = tf.compat.v1.ConfigProto(
+            device_count={"GPU": 1},
+            intra_op_parallelism_threads=1,
+            allow_soft_placement=True,
+        )
+
+        config.gpu_options.allow_growth = True
+        config.gpu_options.per_process_gpu_memory_fraction = 0.8
+
+        session = tf.compat.v1.Session(config=config)
+        graph = tf.compat.v1.get_default_graph()
+
+        model = ModelClass(session, graph)
+
+        results = model.predict_model(inp_image)
+
+        r = results[0]
+        bbox = boxes
+        masks = masks
+        class_names = classes
+
+        const = AppConstants()
+        class_id_dict = const.class_ids()
+        infection_status = False
+        freq = {}
+        for item in list(class_id_dict.keys()):
+            freq[item] = class_names.count(item)
+            if item != "rbc" and freq[item] > 0:
+                infection_status = True
+
+        number_of_rbc = freq["rbc"]
+        trophozoite = freq["trophozoite"]
+        unidentified = freq["unidentified"]
+        ring = freq["ring"]
+        schizont = freq["schizont"]
+        gametocyte = freq["gametocyte"]
+        leukocyte = freq["leukocyte"]
+
+        self.__save_prediction_image(
+            image,
+            bbox,
+            class_names,
+            name_of_image,
+        )
+
+        self.__save_prediction_to_db(
+            cell_microscopy_result_id,
+            boxes,
+            class_names,
+        )
+
+        res = Results()
+        res.updateRecordToDB(
+            cell_microscopy_result_id,
+            infection_status,
+            number_of_rbc,
+            trophozoite,
+            unidentified,
+            ring,
+            schizont,
+            gametocyte,
+            leukocyte,
+        )
+
+        return (True, "Records Updated in DB and Prediction saved in Folder.")
+
     pass

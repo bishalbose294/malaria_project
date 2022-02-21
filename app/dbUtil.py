@@ -154,6 +154,7 @@ class DbConnect:
             + "AND ".join(["{} = %s "] * len(conditions_list))
             + " ORDER BY "
             + str(orderBy)
+            + " DESC"
         ).format(*conditions_list)
         print(query)
         self.cursor.execute(query, (list(conditions_dict.values())))

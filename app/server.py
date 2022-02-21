@@ -1,4 +1,4 @@
-from yfinance import isReportGenerated
+from datetime import datetime
 from app.configUtil import ConfigConnect
 from app.report import Report
 from app.dbUtil import DbConnect
@@ -139,18 +139,21 @@ def uploadNewSampleAPI():
             gametocyte,
             leukocyte,
         )
-        isNew = res.isNewSample(result[1])
-        data = res.getResult(int(result[1]))
-        data["result_data"]["id"] = result[1]
+        id = int(result[1])
+        status_message = result[2]
+
+        isNew = not res.isProcessed(id)
+        data = res.getResult(id)
+        data["result_data"]["id"] = id
 
         report = Report()
-        isReportGenerated = report.isReportGenerated(result[1])
+        reportGenerated = report.isReportGenerated(id)
 
         # return jsonify({"status": result[0], "id": result[1], "message": result[2]})
 
         imagePath = "images/"+str(name_of_image)
 
-        return render_template("sample_details.html", new_sample=isNew, data=data, imagePath=imagePath, status_message=result[2], isReportGenerated=isReportGenerated)
+        return render_template("sample_details.html", new_sample=isNew, data=data, imagePath=imagePath, status_message=status_message, reportGenerated=reportGenerated)
     except Exception as e:
         traceback.print_exc()
         print("ERROR = " + str(e))
@@ -223,12 +226,20 @@ def fetchResultAPI():
         data = result.getResult(id)
         data["result_data"]["id"] = id
 
-        isNew = result.isNewSample(id)
+        isNew = not result.isProcessed(id)
 
-        imagePath = "images/"+str(data["result_data"]["name_of_image"])
+        if isNew:
+            imagePath = "images/"+str(data["result_data"]["name_of_image"])
+            status_message = "Please Predict to generate Report."
+        else:
+            imagePath = "predicted/"+str(data["result_data"]["name_of_image"])
+            status_message = "Click on Generate Report to Download."
 
         report = Report()
-        isReportGenerated = report.isReportGenerated(id)
+        reportGenerated = report.isReportGenerated(id)
+
+        if reportGenerated:
+            status_message = "Please Download Report to View"
 
         # return jsonify(
         #     {
@@ -238,7 +249,7 @@ def fetchResultAPI():
         #     }
         # )
 
-        return render_template("sample_details.html", new_sample=isNew, data=data, imagePath=imagePath, status_message="", isReportGenerated=isReportGenerated)
+        return render_template("sample_details.html", new_sample=isNew, data=data, imagePath=imagePath, status_message=status_message, reportGenerated=reportGenerated)
     except Exception as e:
         traceback.print_exc()
         print("ERROR = " + str(e))
@@ -270,24 +281,36 @@ def predictAPI():
     try:
         content = dict(request.form)
         id = int(content["id"])
-        mlProcess = MLProcess()
-        result = mlProcess.model_predict(id)
-        name_of_image = result[2]
 
         res = Results()
+
+        isNew = not res.isProcessed(id)
+
+        if isNew:
+            mlProcess = MLProcess()
+            result = mlProcess.model_predict(id)
+            status_message = result[1]
+        else:
+            status_message = "Prediction Exists. Fetching Predition."
+
+        isNew = not res.isProcessed(id)
+
+        name_of_image = res.getNameOfImage(id)
+
         data = res.getResult(id)
         data["result_data"]["id"] = id
 
-        isNew = res.isNewSample(id)
-
         report = Report()
-        isReportGenerated = report.isReportGenerated(id)
+        reportGenerated = report.isReportGenerated(id)
 
         # return jsonify({"status": result[0], "message": result[1]})
 
-        imagePath = "predicted/"+str(name_of_image)
+        if isNew:
+            imagePath = "images/"+str(name_of_image)
+        else:
+            imagePath = "predicted/"+str(name_of_image)
 
-        return render_template("sample_details.html", new_sample=isNew, data=data, imagePath=imagePath, status_message=result[1], isReportGenerated=isReportGenerated)
+        return render_template("sample_details.html", new_sample=isNew, data=data, imagePath=imagePath, status_message=status_message, reportGenerated=reportGenerated)
     except Exception as e:
         traceback.print_exc()
         print("ERROR = " + str(e))
@@ -301,19 +324,25 @@ def generateReportAPI():
         content = request.form
         id = int(content["id"])
         report = Report()
-        result = report.generateReport(id)
-        isReportGenerated = report.isReportGenerated(id)
+        reportGenerated = report.isReportGenerated(id)
+
+        if not reportGenerated:
+            result = report.generateReport(id)
+            status_message = result[1]
+            reportGenerated = True
+        else:
+            status_message = "Report Already Generated, Fetching the download Link."
 
         res = Results()
         data = res.getResult(id)
         data["result_data"]["id"] = id
-        isNew = res.isNewSample(id)
+        isNew = not res.isProcessed(id)
 
         imagePath = "predicted/"+str(data["result_data"]["name_of_image"])
 
         # return jsonify({"status": result[0], "message": result[1]})
 
-        return render_template("sample_details.html", new_sample=isNew, data=data, imagePath=imagePath, status_message=result[1], isReportGenerated=isReportGenerated)
+        return render_template("sample_details.html", new_sample=isNew, data=data, imagePath=imagePath, status_message=status_message, reportGenerated=reportGenerated)
     except Exception as e:
         traceback.print_exc()
         print("ERROR = " + str(e))
@@ -321,19 +350,21 @@ def generateReportAPI():
         return render_template("error.html", error_message=str(e))
 
 
-@app.route("/isReportGeneratedReport", methods=["POST"])
-def isReportGeneratedReportAPI():
+@app.route("/downloadReport", methods=["POST"])
+def downloadReportAPI():
     try:
         content = request.form
         id = int(content["id"])
         config = ConfigConnect()
         root = config.get_section_config("ROOT")["cwd"]
         report_folder = config.get_section_config("DIR")["report_folder"]
-        file_name = str(id)+"_report.pdf"
+        report = Report()
+        file_name = report.getReportName(id)
+        attachment_filename = "report_"+datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+".pdf"
         abs_path = os.path.join(root, report_folder, file_name)
         if not os.path.exists(abs_path):
             return jsonify({"status": False, "message": "No such report Exists."})
-        return send_file(abs_path, attachment_filename='report.pdf')
+        return send_file(abs_path, attachment_filename=attachment_filename)
     except Exception as e:
         traceback.print_exc()
         print("ERROR = " + str(e))

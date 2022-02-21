@@ -330,26 +330,40 @@
         <p align="center">
             <img src={{ url_for( "static" , filename=imagePath) }}>
         </p>
+        {% if not data["result_data"]["retrain"] %}
 
         {% if new_sample %}
         <form action={{ url_for( "predictAPI" ) }} method="POST">
             <input type="hidden" name="id" id="id" value={{ data["result_data"]["id"] }} /><br>
             <button type="submit" class="cancelbtn">Predict</button>
         </form>
-        {% else %}
+        {% elif not new_sample and not reportGenerated %}
         <form action={{ url_for( "generateReportAPI" ) }} method="POST">
             <input type="hidden" name="id" id="id" value={{ data["result_data"]["id"] }} /><br>
             <button type="submit" class="cancelbtn">Generate Report</button>
         </form>
-        {% endif %}
         <br>
-        <label style="color:green">{{ status_message }}</label></br>
-        {% if isReportGenerated %}
+        {% else %}
         <form action={{ url_for( "downloadReportAPI" ) }} method="POST">
             <input type="hidden" name="id" id="id" value={{ data["result_data"]["id"] }} /><br>
             <button type="submit" class="cancelbtn">Download Report</button>
         </form>
         {% endif %}
+        <label style="color:green">{{ status_message }}</label></br>
+        {% else %}
+        <label style="color:red">
+            <b>
+                <i>
+                    This Sample has been submitted for further inspection.
+                    Either the Sample is not a blood sample or we are not confident with our analysis.
+                    Hence it will be further tested by experts.
+                    Please expect delay in response.
+                </i>
+            </b>
+        </label></br>
+        {% endif %}
+
+
     </div>
 </body>
 

@@ -39,6 +39,7 @@ class AppConstants:
             "total_infection",
             "upload_date",
             "processing_date",
+            "retrain"
         ]
 
     def detection_bbox_TableColumns(

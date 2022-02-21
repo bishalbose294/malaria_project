@@ -20,7 +20,8 @@ create table mca.cell_microscopy_result
     leukocyte integer,
     total_infection integer,
     upload_date timestamp,
-    processing_date timestamp
+    processing_date timestamp,
+    retrain boolean,
 );
 
 create table mca.report

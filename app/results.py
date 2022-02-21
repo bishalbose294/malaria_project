@@ -26,6 +26,7 @@ class Results:
         const = AppConstants()
         columnList = const.cell_microscopy_result_TableColumns()
         recordCreationTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        retrain = False
 
         columnList.remove("processing_date")
 
@@ -47,6 +48,7 @@ class Results:
             leukocyte,
             total_infection,
             recordCreationTime,
+            retrain,
         ]
 
         dbConnect = DbConnect()
@@ -64,7 +66,7 @@ class Results:
             columnList, conditions_dict)[0]
 
         dbConnect.closeConnection()
-        return (True, id[0], "Records Persisted.")
+        return (True, id[0], "File Successfully Uploaded and Persisted.")
 
     def updateRecordToDB(
         self,
@@ -85,6 +87,7 @@ class Results:
         updateColumnList.remove("patient_id")
         updateColumnList.remove("name_of_image")
         updateColumnList.remove("upload_date")
+        updateColumnList.remove("retrain")
 
         processed = True
 
@@ -188,11 +191,12 @@ class Results:
 
         return result_data
 
-    def isNewSample(
+    def isProcessed(
         self,
         cell_microscopy_result_id,
     ):
         dbConnect = DbConnect()
+
         dbConnect.createConnection()
         dbConnect.setSchema("mca")
         dbConnect.setTableName("cell_microscopy_result")
@@ -201,10 +205,28 @@ class Results:
         primaryKey = "id"
         pkValue = cell_microscopy_result_id
 
-        isNew = dbConnect.fetchOne(columnList, primaryKey, pkValue)[0]
+        data = dbConnect.fetchOne(columnList, primaryKey, pkValue)
 
         dbConnect.closeConnection()
 
-        return not isNew
+        return data[0]
 
+    def getNameOfImage(
+        self,
+        cell_microscopy_result_id,
+    ):
+        dbConnect = DbConnect()
+        dbConnect.createConnection()
+        dbConnect.setSchema("mca")
+        dbConnect.setTableName("cell_microscopy_result")
+
+        columnList = ["name_of_image"]
+        primaryKey = "id"
+        pkValue = cell_microscopy_result_id
+
+        data = dbConnect.fetchOne(columnList, primaryKey, pkValue)
+
+        dbConnect.closeConnection()
+
+        return data[0]
     pass

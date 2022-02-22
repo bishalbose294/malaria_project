@@ -1,0 +1,81 @@
+html {
+	background: #E8F3E8;
+	margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+    margin-top: auto;
+	border-top-style: solid;
+    border-right-style: solid;
+    border-bottom-style: solid;
+    border-left-style: solid;
+}
+
+.styled-table {
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+	border: 2px solid #464E2E; 
+}
+.styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+.styled-table th,
+.styled-table td {
+    padding: 9px 10px;
+    height: 15px;
+    width: 150px;
+}
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+.styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+h1 {
+    color: black;
+    font-family: arial, sans-serif;
+    font-size: 50px;
+    font-weight: bold;
+    margin-top: 0px;
+    margin-bottom: 1px;
+}
+h2 {
+    color: #03045E;
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 30px;
+    font-weight: 400;
+    line-height: 32px;
+    margin: 0 0 24px;
+}
+h3 {
+    display: block;
+    font-size: 1.17em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: 0;
+    margin-right: 0;
+    font-weight: bold;
+    color: #03045E;
+}
+img {
+    border: 2px solid black;
+    border-radius: 4px;
+    padding: 5px;
+    height: 300px;
+    width: 400px;
+}

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Edit Profile </title>
+    <style>
+        Body {
+            font-family: Calibri, Helvetica, sans-serif;
+            background-color: #E8F3E8;
+        }
+
+        button {
+            background-color: #4CAF50;
+            width: 100%;
+            color: yellow;
+            padding: 15px;
+            margin: 10px 0px;
+            border: none;
+            cursor: pointer;
+        }
+
+        form {
+            border: 3px solid #f1f1f1;
+        }
+
+        input[type=text],
+        input[type=password],
+        input[type=date] {
+            width: 100%;
+            margin: 8px 0;
+            padding: 12px 20px;
+            display: inline-block;
+            border: 2px solid green;
+            box-sizing: border-box;
+        }
+
+        select {
+            width: 100%;
+            margin: 8px 0;
+            padding: 12px 20px;
+            display: inline-block;
+            border: 2px solid green;
+            box-sizing: border-box;
+        }
+
+        button:hover {
+            opacity: 0.7;
+        }
+
+        .cancelbtn {
+            width: 95%;
+            padding: 10px 18px;
+            margin: 10px 5px;
+        }
+
+
+        .container {
+            padding: 25px;
+            width: 400px;
+            margin-right: auto;
+            margin-left: auto;
+            background-color: lightblue;
+        }
+    </style>
+    <script>
+        function validateForm() {
+            let email = document.forms["form1"]["email"].value;
+            if (! /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+                alert("You have entered an invalid email address!");
+                return false;
+            }
+        }
+
+        function calculateDate() {
+            let date = document.forms["form1"]["dob"].value
+            var dob = new Date(date);
+
+            var month_diff = Date.now() - dob.getTime();
+            var age_dt = new Date(month_diff);
+            var year = age_dt.getUTCFullYear();
+            var age = Math.abs(year - 1970);
+
+            document.forms["form1"]["age"].value = age
+        }
+
+        function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+    </script>
+</head>
+
+<body>
+    <center>
+        <h1> Smart Malaria Detection - Home </h1>
+        <h5>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+            - AI system to Detect & Classify Malaria Viruses from Blood Sample Images</h5>
+    </center>
+    <div class="container">
+        <h2>Edit Profile </h2>
+        <form action={{ url_for( "navigateToHomeAPI" ) }} method="POST">
+            <input type="hidden" name="patient_id" id="patient_id" value={{ patient_id }} />
+            <button type="submit" class="cancelbtn">Home</button>
+        </form>
+        <form action={{ url_for( "updateProfileAPI" ) }} name="form1" method="POST" onsubmit="return validateForm()">
+            <p>Please fill in this form to create an account.</p>
+            <hr>
+            <input type="hidden" name="patient_id" id="patient_id" value={{ patient_id }} /><br>
+
+            <label for="email"><b>Email</b></label>
+            <input type="text" placeholder="Enter Email" name="email" id="email" value={{ patient_data["email"] }}
+                required>
+            <hr>
+
+            <label for="phone_number"><b>Phone Number</b></label>
+            <input type="text" placeholder="Enter Phone Number" name="phone_number" id="phone_number" value={{
+                patient_data["phone_number"] }} pattern="[6-9]{1}[0-9]{9}" maxlength="10"
+                title="Number should be 10 digits and starting with 6-9" required>
+            <hr>
+
+            <label for="dob"><b>Date of Birth</b></label>
+            <input type="date" placeholder="Select DOB" name="dob" id="dob" value={{ patient_data["dob"] }}
+                onchange="calculateDate()" required>
+            <hr>
+
+            <label for="age"><b>Age</b></label>
+            <input type="text" placeholder="Enter Age" name="age" id="age" value={{ patient_data["age"] }} maxlength="2"
+                required>
+            <hr>
+
+            <label for="marital_status"><b>Marital Status</b></label>
+            <select name="marital_status" id="marital_status" required>
+                <option value="Single" {% if patient_data["marital_status"]=="Single" %} selected {% endif %}>Single
+                </option>
+                <option value="Married" {% if patient_data["marital_status"]=="Married" %} selected {% endif %}>Married
+                </option>
+                <option value="Divorced" {% if patient_data["marital_status"]=="Divorced" %} selected {% endif %}>
+                    Divorced</option>
+                <option value="Widow" {% if patient_data["marital_status"]=="Widow" %} selected {% endif %}>Widow
+                </option>
+            </select>
+            <hr>
+
+            <label for="address"><b>Address</b></label>
+            <input type="text" placeholder="Enter Address" value={{ patient_data["address"] }} maxlength="150"
+                name="address" id="address" required>
+            <hr>
+
+            <label for="state"><b>State</b></label>
+            <select name="state" id="state" class="form-control" required>
+                <option value="Andhra Pradesh" {% if patient_data["state"]=="Andhra Pradesh" %} selected {% endif %}>
+                    Andhra
+                    Pradesh</option>
+                <option value="Andaman and Nicobar Islands" {% if patient_data["state"]=="Andaman and Nicobar Islands"
+                    %} selected {% endif %}>Andaman and Nicobar Islands</option>
+                <option value="Arunachal Pradesh" {% if patient_data["state"]=="Arunachal Pradesh" %} selected {% endif
+                    %}>
+                    Arunachal Pradesh</option>
+                <option value="Assam" {% if patient_data["state"]=="Assam" %} selected {% endif %}>Assam</option>
+                <option value="Bihar" {% if patient_data["state"]=="Bihar" %} selected {% endif %}>Bihar</option>
+                <option value="Chandigarh" {% if patient_data["state"]=="Chandigarh" %} selected {% endif %}>Chandigarh
+                </option>
+                <option value="Chhattisgarh" {% if patient_data["state"]=="Chhattisgarh" %} selected {% endif %}>
+                    Chhattisgarh
+                </option>
+                <option value="Dadar and Nagar Haveli" {% if patient_data["state"]=="Dadar and Nagar Haveli" %} selected
+                    {% endif %}>
+                    Dadar and Nagar Haveli</option>
+                <option value="Daman and Diu" {% if patient_data["state"]=="Daman and Diu" %} selected {% endif %}>Daman
+                    and
+                    Diu</option>
+                <option value="Delhi" {% if patient_data["state"]=="Delhi" %} selected {% endif %}>Delhi</option>
+                <option value="Lakshadweep" {% if patient_data["state"]=="Lakshadweep" %} selected {% endif %}>
+                    Lakshadweep
+                </option>
+                <option value="Puducherry" {% if patient_data["state"]=="Puducherry" %} selected {% endif %}>Puducherry
+                </option>
+                <option value="Goa" {% if patient_data["state"]=="Goa" %} selected {% endif %}>Goa</option>
+                <option value="Gujarat" {% if patient_data["state"]=="Gujarat" %} selected {% endif %}>Gujarat</option>
+                <option value="Haryana" {% if patient_data["state"]=="Haryana" %} selected {% endif %}>Haryana</option>
+                <option value="Himachal Pradesh" {% if patient_data["state"]=="Himachal Pradesh" %} selected {% endif
+                    %}>Himachal
+                    Pradesh</option>
+                <option value="Jammu and Kashmir" {% if patient_data["state"]=="Jammu and Kashmir" %} selected {% endif
+                    %}>Jammu
+                    and Kashmir</option>
+                <option value="Jharkhand" {% if patient_data["state"]=="Jharkhand" %} selected {% endif %}>Jharkhand
+                </option>
+                <option value="Karnataka" {% if patient_data["state"]=="Karnataka" %} selected {% endif %}>Karnataka
+                </option>
+                <option value="Kerala" {% if patient_data["state"]=="Kerala" %} selected {% endif %}>Kerala</option>
+                <option value="Madhya Pradesh" {% if patient_data["state"]=="Madhya Pradesh" %} selected {% endif %}>
+                    Madhya
+                    Pradesh</option>
+                <option value="Maharashtra" {% if patient_data["state"]=="Maharashtra" %} selected {% endif %}>
+                    Maharashtra
+                </option>
+                <option value="Manipur" {% if patient_data["state"]=="Manipur" %} selected {% endif %}>Manipur</option>
+                <option value="Meghalaya" {% if patient_data["state"]=="Meghalaya" %} selected {% endif %}>Meghalaya
+                </option>
+                <option value="Mizoram" {% if patient_data["state"]=="Mizoram" %} selected {% endif %}>Mizoram</option>
+                <option value="Nagaland" {% if patient_data["state"]=="Nagaland" %} selected {% endif %}>Nagaland
+                </option>
+                <option value="Odisha" {% if patient_data["state"]=="Odisha" %} selected {% endif %}>Odisha</option>
+                <option value="Punjab" {% if patient_data["state"]=="Punjab" %} selected {% endif %}>Punjab</option>
+                <option value="Rajasthan" {% if patient_data["state"]=="Rajasthan" %} selected {% endif %}>Rajasthan
+                </option>
+                <option value="Sikkim" {% if patient_data["state"]=="Sikkim" %} selected {% endif %}>Sikkim</option>
+                <option value="Tamil Nadu" {% if patient_data["state"]=="Tamil Nadu" %} selected {% endif %}>Tamil Nadu
+                </option>
+                <option value="Telangana" {% if patient_data["state"]=="Telangana" %} selected {% endif %}>Telangana
+                </option>
+                <option value="Tripura" {% if patient_data["state"]=="Tripura" %} selected {% endif %}>Tripura</option>
+                <option value="Uttar Pradesh" {% if patient_data["state"]=="Uttar Pradesh" %} selected {% endif %}>Uttar
+                    Pradesh</option>
+                <option value="Uttarakhand" {% if patient_data["state"]=="Uttarakhand" %} selected {% endif %}>
+                    Uttarakhand
+                </option>
+                <option value="West Bengal" {% if patient_data["state"]=="West Bengal" %} selected {% endif %}>West
+                    Bengal
+                </option>
+            </select>
+            <hr>
+
+            <label for="country"><b>Country</b></label>
+            <select name="country" id="country" class="form-control" value={{ patient_data["country"] }} required>
+                <option value="India">India</option>
+            </select>
+            <hr>
+
+            <label for="pincode"><b>Pincode</b></label>
+            <input type="text" placeholder="Enter Pincode" value={{ patient_data["pincode"] }} name="pincode"
+                id="pincode" pattern="[0-9]{6}" title="Pincode should be 6 digits only" maxlength="6" required>
+            <hr>
+
+            <p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p>
+            <button type="submit" class="cancelbtn">Save Changes</button>
+        </form>
+
+    </div>
+</body>
+
+</html>

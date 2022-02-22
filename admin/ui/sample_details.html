@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Sample Details </title>
+
+    <style>
+        Body {
+            font-family: Calibri, Helvetica, sans-serif;
+            background-color: #E8F3E8;
+        }
+
+        button {
+            background-color: #4CAF50;
+            width: 100%;
+            color: yellow;
+            padding: 15px;
+            margin: 10px 0px;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type=text],
+        input[type=password] {
+            width: 100%;
+            margin: 8px 0;
+            padding: 12px 20px;
+            display: inline-block;
+            border: 2px solid green;
+            box-sizing: border-box;
+        }
+
+        button:hover {
+            opacity: 0.7;
+        }
+
+        .cancelbtn {
+            width: 100%;
+            padding: 10px 18px;
+            margin: 10px 5px;
+        }
+
+
+        .container {
+            padding: 25px;
+            width: 600px;
+            margin-right: auto;
+            margin-left: auto;
+            background-color: lightblue;
+        }
+
+        input[type=file] {
+            background-color: rgb(95, 228, 102);
+            color: white;
+            padding: 0.5rem;
+            font-family: sans-serif;
+            border: 2px solid black;
+            border-radius: 0.3rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+
+        .styled-table {
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+            border: 2px solid #464E2E;
+        }
+
+        .styled-table thead tr {
+            background-color: #009879;
+            color: #ffffff;
+            text-align: left;
+        }
+
+        .styled-table th,
+        .styled-table td {
+            padding: 9px 10px;
+            height: 15px;
+            width: 150px;
+        }
+
+        .styled-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .styled-table tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+
+        .styled-table tbody tr:last-of-type {
+            border-bottom: 2px solid #009879;
+        }
+
+        .styled-table tbody tr.active-row {
+            font-weight: bold;
+            color: #009879;
+        }
+
+        .backbutton {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            width: auto;
+        }
+
+        img {
+            border: 2px solid black;
+            border-radius: 4px;
+            padding: 5px;
+            height: 300px;
+            width: 400px;
+        }
+    </style>
+    <script type="text/javascript">
+        function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+    </script>
+</head>
+
+<body>
+    <center>
+        <h1> Smart Malaria Detection - Home </h1>
+        <h5>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+            - AI system to Detect & Classify Malaria Viruses from Blood Sample Images</h5>
+    </center>
+    <div class="container">
+        <div style="text-align:right">
+            <a href={{ url_for( "index" ) }} style="color:red;font-weight: bold;font-style: italic;">Logout</a>
+        </div>
+        <form action={{ url_for( "navigateToHomeAPI" ) }} method="POST">
+            <input type="hidden" name="patient_id" id="patient_id" value={{ data["result_data"]["patient_id"] }} />
+            <button type="submit" class="cancelbtn">Home</button>
+        </form>
+        <form action={{ url_for( "navigateToListingPageAPI" ) }} method="POST">
+            <input type="hidden" name="patient_id" id="patient_id" value={{ data["result_data"]["patient_id"] }} />
+            <button type="submit" class="cancelbtn">Historic Data</button>
+        </form>
+        <table class="styled-table">
+
+            <tr>
+                <td>
+                    <b>Name : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["name"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Email : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["email"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Phone Number : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["phone_number"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>DOB : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["dob"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Age : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["age"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Marital Status : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["marital_status"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Address : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["address"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>State : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["state"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Country : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["country"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Pincode : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["pincode"] }}</i>
+                </td>
+            </tr>
+        </table>
+
+        {% if new_sample %}
+        <p>
+        <table class="styled-table">
+            <tr>
+                <td>
+                    <b>Sample ID : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["id"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Sample Upload Date : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["upload_date"] }}</i>
+                </td>
+            </tr>
+        </table>
+        </p>
+        {% else %}
+        <p>
+        <table class="styled-table">
+            <tr>
+                <td>
+                    <b>Sample ID : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["id"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Infection : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["infection_status"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Number of RBC : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["number_of_rbc"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Trophozoite : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["trophozoite"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Ring : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["ring"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Schizont : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["schizont"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Gametocyte : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["gametocyte"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Leukocyte : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["leukocyte"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Unidentified : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["unidentified"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Total Infection : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["total_infection"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Upload Date : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["upload_date"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Processing Date : </b>
+                </td>
+                <td>
+                    <i>{{ data["result_data"]["processing_date"] }}</i>
+                </td>
+            </tr>
+        </table>
+        </p>
+        {% endif %}
+
+        <p align="center">
+            <img src={{ url_for( "static" , filename=imagePath) }}>
+        </p>
+        {% if not data["result_data"]["retrain"] %}
+        {% if new_sample and isimpersonatingasuser %}
+        <form action={{ url_for( "predictAPI" ) }} method="POST">
+            <input type="hidden" name="patient_id" id="patient_id" value={{ data["result_data"]["patient_id"] }} /><br>
+            <input type="hidden" name="id" id="id" value={{ data["result_data"]["id"] }} /><br>
+            <button type="submit" class="cancelbtn">Predict</button>
+        </form>
+        <label style="color:green">{{ status_message }}</label></br>
+        {% elif not new_sample and not reportGenerated and isimpersonatingasuser %}
+        <form action={{ url_for( "generateReportAPI" ) }} method="POST">
+            <input type="hidden" name="patient_id" id="patient_id" value={{ data["result_data"]["patient_id"] }} /><br>
+            <input type="hidden" name="id" id="id" value={{ data["result_data"]["id"] }} /><br>
+            <button type="submit" class="cancelbtn">Generate Report</button>
+        </form>
+        <label style="color:green">{{ status_message }}</label></br>
+        <br>
+        {% elif reportGenerated %}
+        <form action={{ url_for( "downloadReportAPI" ) }} method="POST">
+            <input type="hidden" name="patient_id" id="patient_id" value={{ data["result_data"]["patient_id"] }} /><br>
+            <input type="hidden" name="id" id="id" value={{ data["result_data"]["id"] }} /><br>
+            <button type="submit" class="cancelbtn">Download Report</button>
+        </form>
+        <label style="color:green">{{ status_message }}</label></br>
+        {% else %}
+        <label style="color:red">
+            <b>
+                <i>
+                    We Will notify you once your report has been Generated and is ready for Download. Please have
+                    Patience.
+                </i>
+            </b>
+        </label>
+        {% endif %}
+
+        {% else %}
+        <label style="color:red">
+            <b>
+                <i>
+                    This Sample has been submitted for further inspection. <br>
+                    Either the Sample is not a blood sample or we are not confident with our analysis. <br>
+                    Hence it will be further tested by experts. <br>
+                    Please expect delay in response. <br>
+                </i>
+            </b>
+        </label></br>
+        {% endif %}
+
+
+    </div>
+</body>
+
+</html>

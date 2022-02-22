@@ -1,9 +1,12 @@
+import bcrypt
 from app.auth import Authenticate
+from app.configUtil import ConfigConnect
 from app.dbUtil import DbConnect
 from configuration.contstants import AppConstants
 
 
 class LoginUser:
+
     def userLogin(
         self,
         username,
@@ -14,10 +17,9 @@ class LoginUser:
         result = auth.authenticate(username, password)
 
         return (result[0], result[1], result[2])
-    
 
     def getUserDetails(
-        self, 
+        self,
         patient_id,
     ):
         const = AppConstants()
@@ -34,20 +36,15 @@ class LoginUser:
         data = dbConnect.fetchOne(columnList, primaryKey, pkValue)
         dbConnect.closeConnection()
 
-        patient_data["name"] = data[0]
-        patient_data["email"] = data[1]
-        patient_data["phone_number"] = data[2]
-        patient_data["age"] = data[3]
-        patient_data["address"] = data[4]
-        patient_data["state"] = data[5]
-        patient_data["pincode"] = data[6]
+        for i in range(len(columnList)):
+            patient_data[columnList[i]] = data[i]
 
         return patient_data
-    
+
     def getUsername(
-        self, 
-        patient_id, 
-    ):  
+        self,
+        patient_id,
+    ):
         dbConnect = DbConnect()
         dbConnect.createConnection()
         dbConnect.setSchema("mca")
@@ -63,4 +60,112 @@ class LoginUser:
         username = data[0]
 
         return username
+
+    def isAdmin(
+        self,
+        patient_id,
+    ):
+        dbConnect = DbConnect()
+        dbConnect.createConnection()
+        dbConnect.setSchema("mca")
+        dbConnect.setTableName("login")
+
+        primaryKey = "patient_id"
+        pkValue = patient_id
+
+        columnList = ["isAdmin"]
+        data = dbConnect.fetchOne(columnList, primaryKey, pkValue)
+        dbConnect.closeConnection()
+
+        isAdmin = data[0]
+
+        return isAdmin
+
+    def setImpersonatingAsUser(
+        self,
+        isAdmin,
+        username,
+        id
+    ):
+        config = ConfigConnect()
+        config.set_section_config(
+            "admin", "isimpersonatingasuser", isAdmin)
+        config.set_section_config(
+            "admin", "admin_username", username)
+        config.set_section_config(
+            "admin", "admin_id", id)
+
+    def isImpersonatingAsUser(
+        self,
+    ):
+        config = ConfigConnect()
+        isimpersonatingasuser = config.get_section_config(
+            "admin")["isimpersonatingasuser"]
+
+        if isimpersonatingasuser == "False":
+            return False
+        else:
+            return True
+
+    def verifySecurityDetails(
+        self,
+        username,
+        security1,
+        security2,
+        security3,
+    ):
+
+        auth = Authenticate()
+        if not auth.checkIfUserExist(username):
+            return (False, "No such user found")
+
+        dbConnect = DbConnect()
+        dbConnect.createConnection()
+        dbConnect.setSchema("mca")
+        dbConnect.setTableName("login")
+
+        primaryKey = "username"
+        pkValue = username
+
+        columnList = ["security1", "security2", "security3"]
+        data = dbConnect.fetchOne(columnList, primaryKey, pkValue)
+
+        dbConnect.closeConnection()
+
+        if security1.lower() == data[0].lower() and security2.lower() == data[1].lower() and security3.lower() == data[2].lower():
+            return (True, "Please Proceed with Password Reset.")
+
+        return (False, "Security answer didn't match. Please try again.")
+
+    def changePassword(
+        self,
+        username,
+        password,
+    ):
+        auth = Authenticate()
+        if not auth.checkIfUserExist(username):
+            return (False, "No such user found")
+
+        dbConnect = DbConnect()
+        dbConnect.createConnection()
+
+        dbConnect.setSchema("mca")
+        dbConnect.setTableName("login")
+
+        hashedPassword = bcrypt.hashpw(
+            password.encode("utf-8"), bcrypt.gensalt())
+
+        const = AppConstants()
+
+        columnList = const.login_TableColumns()[:2]
+
+        columnValues = [username, hashedPassword]
+        updateColumn = "password"
+        updateValue = hashedPassword
+        primaryKey = "username"
+        pkValue = username
+        dbConnect.updateRecord(updateColumn, updateValue, primaryKey, pkValue)
+
+        return (True, "Password Reset Successful. Please login with new password.")
+
     pass

@@ -53,6 +53,11 @@
             background-color: lightblue;
         }
     </style>
+    <script type="text/javascript">
+        function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+    </script>
 </head>
 
 <body>
@@ -61,9 +66,12 @@
     </center>
     <label>
         <div class="container">
-            <h2>{{ error_message }}</h2>
+            <h2>{{ error_message }}</h2></br></br></br>
+            <label style="color:red">{{ status_message }}</label> </br>
+            <a href={{ url_for( "index" ) }}>Login Page</a>
         </div>
     </label>
+    <br>
 </body>
 
 </html>

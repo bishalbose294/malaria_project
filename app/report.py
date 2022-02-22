@@ -1,3 +1,4 @@
+from pathlib import Path
 import pdfkit
 from app.dbUtil import DbConnect
 from app.results import Results
@@ -27,8 +28,8 @@ class Report:
         return existance
 
     def save_report_to_db(
-        self, 
-        cell_microscopy_result_id, 
+        self,
+        cell_microscopy_result_id,
         filename,
     ):
         const = AppConstants()
@@ -45,7 +46,7 @@ class Report:
         dbConnect.closeConnection()
 
     def getReportName(
-        self, 
+        self,
         cell_microscopy_result_id,
     ):
 
@@ -73,7 +74,7 @@ class Report:
         patient_data = data_all["patient_data"]
         result_data = data_all["result_data"]
 
-        root_folder = config.get_section_config("ROOT")["cwd"]
+        root = config.get_section_config("ROOT")["cwd"]
         dict_values = config.get_section_config("DIR")
         raw_image_folder = dict_values["images_folder"]
         predicted_image_folder = dict_values["predicted_images_folder"]
@@ -84,23 +85,23 @@ class Report:
         css_file = config.get_section_config("FILE")["css"]
 
         raw_image_path = os.path.join(
-            root_folder,
+            root,
             raw_image_folder,
             result_data["name_of_image"],
         )
         predicted_image_path = os.path.join(
-            root_folder,
+            root,
             predicted_image_folder,
             result_data["name_of_image"],
         )
         pdf_report_path = os.path.join(
-            root_folder,
+            root,
             report_folder,
             name_of_pdf_report,
         )
 
         css_path = os.path.join(
-            root_folder,
+            root,
             css_file_folder,
             css_file,
         )

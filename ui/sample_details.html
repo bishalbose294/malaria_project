@@ -105,10 +105,6 @@
             color: #009879;
         }
 
-        .wrapper {
-            text-align: center;
-        }
-
         .backbutton {
             background-color: #4CAF50;
             border: none;
@@ -129,6 +125,11 @@
             width: 400px;
         }
     </style>
+    <script type="text/javascript">
+        function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+    </script>
 </head>
 
 <body>
@@ -137,14 +138,20 @@
         <h5>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
             - AI system to Detect & Classify Malaria Viruses from Blood Sample Images</h5>
     </center>
-    <div class="wrapper">
-        <form action={{ url_for( "navigateToHomeAPI" ) }} method="POST">
-            <input type="hidden" name="patient_id" id="patient_id" value={{ data["result_data"]["patient_id"] }} /><br>
-            <button type="submit" class="backbutton">Back Home</button>
-        </form>
-    </div>
     <div class="container">
+        <div style="text-align:right">
+            <a href={{ url_for( "index" ) }} style="color:red;font-weight: bold;font-style: italic;">Logout</a>
+        </div>
+        <form action={{ url_for( "navigateToHomeAPI" ) }} method="POST">
+            <input type="hidden" name="patient_id" id="patient_id" value={{ data["result_data"]["patient_id"] }} />
+            <button type="submit" class="cancelbtn">Home</button>
+        </form>
+        <form action={{ url_for( "navigateToListingPageAPI" ) }} method="POST">
+            <input type="hidden" name="patient_id" id="patient_id" value={{ data["result_data"]["patient_id"] }} />
+            <button type="submit" class="cancelbtn">Historic Data</button>
+        </form>
         <table class="styled-table">
+
             <tr>
                 <td>
                     <b>Name : </b>
@@ -171,10 +178,26 @@
             </tr>
             <tr>
                 <td>
+                    <b>DOB : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["dob"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <b>Age : </b>
                 </td>
                 <td>
                     <i>{{ data["patient_data"]["age"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Marital Status : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["marital_status"] }}</i>
                 </td>
             </tr>
             <tr>
@@ -191,6 +214,14 @@
                 </td>
                 <td>
                     <i>{{ data["patient_data"]["state"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Country : </b>
+                </td>
+                <td>
+                    <i>{{ data["patient_data"]["country"] }}</i>
                 </td>
             </tr>
             <tr>
@@ -331,33 +362,44 @@
             <img src={{ url_for( "static" , filename=imagePath) }}>
         </p>
         {% if not data["result_data"]["retrain"] %}
-
-        {% if new_sample %}
+        {% if new_sample and isimpersonatingasuser %}
         <form action={{ url_for( "predictAPI" ) }} method="POST">
             <input type="hidden" name="id" id="id" value={{ data["result_data"]["id"] }} /><br>
             <button type="submit" class="cancelbtn">Predict</button>
         </form>
-        {% elif not new_sample and not reportGenerated %}
+        <label style="color:green">{{ status_message }}</label></br>
+        {% elif not new_sample and not reportGenerated and isimpersonatingasuser %}
         <form action={{ url_for( "generateReportAPI" ) }} method="POST">
             <input type="hidden" name="id" id="id" value={{ data["result_data"]["id"] }} /><br>
             <button type="submit" class="cancelbtn">Generate Report</button>
         </form>
+        <label style="color:green">{{ status_message }}</label></br>
         <br>
-        {% else %}
+        {% elif reportGenerated %}
         <form action={{ url_for( "downloadReportAPI" ) }} method="POST">
             <input type="hidden" name="id" id="id" value={{ data["result_data"]["id"] }} /><br>
             <button type="submit" class="cancelbtn">Download Report</button>
         </form>
-        {% endif %}
         <label style="color:green">{{ status_message }}</label></br>
         {% else %}
         <label style="color:red">
             <b>
                 <i>
-                    This Sample has been submitted for further inspection.
-                    Either the Sample is not a blood sample or we are not confident with our analysis.
-                    Hence it will be further tested by experts.
-                    Please expect delay in response.
+                    We Will notify you once your report has been Generated and is ready for Download. Please have
+                    Patience.
+                </i>
+            </b>
+        </label>
+        {% endif %}
+
+        {% else %}
+        <label style="color:red">
+            <b>
+                <i>
+                    This Sample has been submitted for further inspection. <br>
+                    Either the Sample is not a blood sample or we are not confident with our analysis. <br>
+                    Hence it will be further tested by experts. <br>
+                    Please expect delay in response. <br>
                 </i>
             </b>
         </label></br>

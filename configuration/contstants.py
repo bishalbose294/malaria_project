@@ -6,6 +6,10 @@ class AppConstants:
             "username",
             "password",
             "patient_id",
+            "security1",
+            "security2",
+            "security3",
+            "isAdmin",
         ]
 
     def patient_TableColumns(
@@ -15,9 +19,12 @@ class AppConstants:
             "name",
             "email",
             "phone_number",
+            "dob",
             "age",
+            "marital_status",
             "address",
             "state",
+            "country",
             "pincode",
         ]
 

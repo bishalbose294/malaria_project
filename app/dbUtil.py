@@ -134,6 +134,26 @@ class DbConnect:
         print("\nRecords Fetched Successfully...\n")
         return row
 
+    def fetchAll(
+        self,
+        columnList,
+        orderBy=None,
+    ):
+        query = (
+            "select "
+            + ",".join(columnList)
+            + " from "
+            + self.schema
+            + "."
+            + self.tableName
+        )
+        if orderBy:
+            query += " order by "+str(orderBy)
+        self.cursor.execute(query)
+        row = self.cursor.fetchall()
+        print("\nRecords Fetched Successfully...\n")
+        return row
+
     """
     conditions_dict = {
         "columnName" : columnValue,

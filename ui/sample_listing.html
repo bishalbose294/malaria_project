@@ -44,7 +44,7 @@
 
         .container {
             padding: 25px;
-            width: 800px;
+            width: 600px;
             margin-right: auto;
             margin-left: auto;
             background-color: lightblue;
@@ -113,10 +113,6 @@
             width: 400px;
         }
 
-        .wrapper {
-            text-align: center;
-        }
-
         .backbutton {
             background-color: #4CAF50;
             border: none;
@@ -129,6 +125,11 @@
             width: auto;
         }
     </style>
+    <script type="text/javascript">
+        function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+    </script>
 </head>
 
 <body>
@@ -137,23 +138,24 @@
         <h5>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
             - AI system to Detect & Classify Malaria Viruses from Blood Sample Images</h5>
     </center>
-    <div class="wrapper">
+    <div class="container">
+        <div style="text-align:right">
+            <a href={{ url_for( "index" ) }} style="color:red;font-weight: bold;font-style: italic;">Logout</a>
+        </div>
         <form action={{ url_for( "navigateToHomeAPI" ) }} method="POST">
             <input type="hidden" name="patient_id" id="patient_id" value={{ patientId }} /><br>
-            <button type="submit" class="backbutton">Back Home</button>
+            <button type="submit" class="cancelbtn">Home</button>
         </form>
-    </div>
-    <div class="container">
         <table class="styled-table">
             <tr>
                 <th> <b> Sr. No </b> </th>
                 <th> <b> Sample Reference </b> </th>
-                <th> <b> Sample Upload Date </b> </th>
+                <th> <b> Sample Submission Date </b> </th>
                 <th> <b> Action </b> </th>
             </tr>
             {% for key, value in all_results.items() %}
             <tr>
-                <td> {{ loop.index }} </td>
+                <td align="center"> {{ loop.index }} </td>
                 <td> Sample ID - {{ key }} </td>
                 <td> {{ value }} </td>
                 <td>

@@ -107,6 +107,11 @@
             color: #009879;
         }
     </style>
+    <script type="text/javascript">
+        function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+    </script>
 </head>
 
 <body>
@@ -116,9 +121,23 @@
             - AI system to Detect & Classify Malaria Viruses from Blood Sample Images</h5>
     </center>
     <div class="container">
+        <div style="text-align:right">
+            <a href={{ url_for( "logoutAPI" ) }} style="color:red;font-weight: bold;font-style: italic;">Logout</a>
+        </div>
+        <form action={{ url_for( "navigateToEditProfileAPI" ) }} method="POST">
+            <input type="hidden" name="patient_id" id="patient_id" value={{ patient_id }} /><br>
+            <button type="submit" class="btn btn-info">Edit Profile</button>
+        </form>
+
+        {% if (isimpersonatingasuser) and (not isAdmin) %}
+        <form action={{ url_for( "navigateToAdminHomeAPI" ) }}>
+            <button type="submit" class="btn btn-info">Admin Home</button>
+        </form>
+        {% endif %}
         <h3>Welcome {{username}}</h3>
 
         <table class="styled-table">
+
             <tr>
                 <td>
                     <b>Name : </b>
@@ -145,10 +164,26 @@
             </tr>
             <tr>
                 <td>
+                    <b>DOB : </b>
+                </td>
+                <td>
+                    <i>{{ patient_data["dob"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <b>Age : </b>
                 </td>
                 <td>
                     <i>{{ patient_data["age"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Marital Status : </b>
+                </td>
+                <td>
+                    <i>{{ patient_data["marital_status"] }}</i>
                 </td>
             </tr>
             <tr>
@@ -169,6 +204,14 @@
             </tr>
             <tr>
                 <td>
+                    <b>Country : </b>
+                </td>
+                <td>
+                    <i>{{ patient_data["country"] }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <b>Pincode : </b>
                 </td>
                 <td>
@@ -177,13 +220,13 @@
             </tr>
         </table>
 
-        <form action={{ url_for( "fetchAllResultAPI" ) }} method="POST">
-            <input type="hidden" name="patient_id" id="patient_id" value={{ patient_id }} /><br>
-            <button type="submit" class="cancelbtn">Preview Historic Data</button>
+        {% if isAdmin %}
+        <form action={{ url_for( "fetchAllPatientsAPI" ) }}>
+            <button type="submit" class="btn btn-info">Preview Patient Data</button>
         </form>
+        {% endif %}
 
-        <br><br><br>
-
+        {% if (isimpersonatingasuser) and (not isAdmin) %}
         <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#upload">Upload New
             Sample</button>
         <div id="upload" class="collapse">
@@ -193,6 +236,15 @@
                 <button type="submit" class="cancelbtn">Upload</button>
             </form>
         </div>
+        {% endif %}
+
+        {% if not isAdmin %}
+        <form action={{ url_for( "fetchAllResultAPI" ) }} method="POST">
+            <input type="hidden" name="patient_id" id="patient_id" value={{ patient_id }} /><br>
+            <button type="submit" class="btn btn-info">Preview Historic Data</button>
+        </form>
+        {% endif %}
+
     </div>
     </div>
 </body>

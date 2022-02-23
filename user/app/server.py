@@ -271,7 +271,7 @@ def fetchAllPatientsAPI():
     try:
         register = RegisterUser()
         patient_list = register.getAllUserDetails()
-        return render_template("patient_listing.html", patient_list=patient_list)
+        return render_template("patient_listing.html", isAdmin=True, isimpersonatingasuser=True, patient_list=patient_list)
     except Exception as e:
         traceback.print_exc()
         print("ERROR = " + str(e))

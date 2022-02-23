@@ -134,7 +134,7 @@
 
 <body>
     <center>
-        <h1> Smart Malaria Detection - Home </h1>
+        <h1> Smart Malaria Detection </h1>
         <h5>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
             - AI system to Detect & Classify Malaria Viruses from Blood Sample Images</h5>
     </center>
@@ -142,10 +142,11 @@
         <div style="text-align:right">
             <a href={{ url_for( "index" ) }} style="color:red;font-weight: bold;font-style: italic;">Logout</a>
         </div>
-        <form action={{ url_for( "navigateToHomeAPI" ) }} method="POST">
-            <input type="hidden" name="patient_id" id="patient_id" value={{ patientId }} /><br>
-            <button type="submit" class="cancelbtn">Home</button>
+        {% if isimpersonatingasuser and isAdmin %}
+        <form action={{ url_for( "navigateToAdminHomeAPI" ) }}>
+            <button type="submit" class="btn btn-info">Admin Home</button>
         </form>
+        {% endif %}
         <table class="styled-table">
             <tr>
                 <th> <b> Sr. No </b> </th>

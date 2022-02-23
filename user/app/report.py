@@ -116,8 +116,13 @@ class Report:
                     <link rel="stylesheet" href="{css_path}">
                 </head>
                 <body>
-                    <br /><br /><br /><br />
-                    <h1 align="center">{page_title_text}</h1>
+                    <center>
+                        <h1> Smart Malaria Detection </h1>
+                        <h5>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+                            - AI system to Detect & Classify Malaria Viruses from Blood Sample Images</h5>
+                    </center>
+                    <br /><br /><br />
+                    <h2 align="center">{page_title_text}</h2>
                     <br /><br /><br />
                     <table align="center">
                         <tr>
@@ -246,7 +251,7 @@ class Report:
                                         <td>{result_data["total_infection"]}</td>
                                     </tr>
                                     <tr>
-                                        <td>Result Date:</td>
+                                        <td>Sample Date:</td>
                                         <td>{result_data["upload_date"]}</td>
                                     </tr>
                                     <tr>

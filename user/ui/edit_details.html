@@ -142,7 +142,7 @@
             <hr>
 
             <label for="address"><b>Address</b></label>
-            <input type="text" placeholder="Enter Address" value={{ patient_data["address"] }} maxlength="150"
+            <input type="text" placeholder="Enter Address" maxlength="150" value={{ patient_data["address"] }} 
                 name="address" id="address" required>
             <hr>
 
@@ -223,8 +223,8 @@
             <hr>
 
             <label for="country"><b>Country</b></label>
-            <select name="country" id="country" class="form-control" value={{ patient_data["country"] }} required>
-                <option value="India">India</option>
+            <select name="country" id="country" class="form-control" required>
+                <option value="India" {% if patient_data["country"]=="India" %} selected {% endif %}>India</option>
             </select>
             <hr>
 
@@ -232,7 +232,6 @@
             <input type="text" placeholder="Enter Pincode" value={{ patient_data["pincode"] }} name="pincode"
                 id="pincode" pattern="[0-9]{6}" title="Pincode should be 6 digits only" maxlength="6" required>
             <hr>
-
             <button type="submit" class="cancelbtn">Save Changes</button>
         </form>
 

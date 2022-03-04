@@ -10,7 +10,7 @@ from app.register import RegisterUser
 from app.results import Results
 from app.mlProcess import MLProcess
 
-
+# API to test 
 @app.route("/test")
 def testAPI():
     try:
@@ -20,12 +20,12 @@ def testAPI():
         print("ERROR = " + str(e))
         return {"ERROR": str(e), "status": False}
 
-
+# API to load default page
 @app.route('/')
 def index():
     return render_template("login.html", registration_message="")
 
-
+# API to Login user
 @app.route("/login", methods=["POST"])
 def loginAPI():
     try:
@@ -59,7 +59,7 @@ def loginAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to redirect user to Home after successful login or to error page otherwise
 @app.route("/userHome", methods=["POST"])
 def userHomeAPI():
     try:
@@ -81,7 +81,7 @@ def userHomeAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to reset password for user
 @app.route("/resetPassword", methods=["POST"])
 def resetPasswordAPI():
     try:
@@ -117,7 +117,7 @@ def resetPasswordAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to update profile of user
 @app.route("/updateProfile", methods=["POST"])
 def updateProfileAPI():
     try:
@@ -151,7 +151,7 @@ def updateProfileAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to register patient for website
 @app.route("/registerPatient", methods=["POST"])
 def registerPatientAPI():
     try:
@@ -205,7 +205,7 @@ def registerPatientAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to upload a new sample to website
 @app.route("/uploadNewSample", methods=["POST"])
 def uploadNewSampleAPI():
     try:
@@ -265,7 +265,7 @@ def uploadNewSampleAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to fetch all patient details
 @app.route("/fetchAllPatients")
 def fetchAllPatientsAPI():
     try:
@@ -278,7 +278,7 @@ def fetchAllPatientsAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to fetch specific result for a patient
 @app.route("/fetchResult", methods=["POST"])
 def fetchResultAPI():
     try:
@@ -322,7 +322,7 @@ def fetchResultAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to fetch all result for a patient
 @app.route("/fetchAllResult", methods=["POST"])
 def fetchAllResultAPI():
     try:
@@ -341,7 +341,7 @@ def fetchAllResultAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to predict result for a new sample
 @app.route("/predict", methods=["POST"])
 def predictAPI():
     try:
@@ -388,7 +388,7 @@ def predictAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to generate report for a sample
 @app.route("/generateReport", methods=["POST"])
 def generateReportAPI():
     try:
@@ -426,14 +426,20 @@ def generateReportAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to download generated report
 @app.route("/downloadReport", methods=["POST"])
 def downloadReportAPI():
     try:
         content = request.form
         id = int(content["id"])
+
+        # Class to Connect to Config File
         config = ConfigConnect()
+
+        # Fetching configuration Data
         data = config.get_section_config("ROOT")["data"]
+
+        # Fetching configuration Data
         report_folder = config.get_section_config("DIR")["report_folder"]
         report = Report()
         file_name = report.getReportName(id)
@@ -449,17 +455,26 @@ def downloadReportAPI():
         return render_template("error.html", error_message=str(e))
 
 
+# API to logout from website
 @app.route('/logout')
 def logoutAPI():
-    configParser = ConfigConnect()
-    configParser.set_section_config("admin", "isimpersonatingasuser", False)
-    configParser.set_section_config("admin", "admin_username", None)
-    configParser.set_section_config("admin", "admin_id", 0)
+
+    # Class to Connect to Config File
+    config = ConfigConnect()
+
+    # Setting configuration Data
+    config.set_section_config("admin", "isimpersonatingasuser", False)
+
+    # Setting configuration Data
+    config.set_section_config("admin", "admin_username", None)
+
+    # Setting configuration Data
+    config.set_section_config("admin", "admin_id", 0)
     return render_template("login.html", registration_message="")
 
 ################################################################ Navigation API #########################################
 
-
+# API to navigate to edit profile page
 @app.route("/navigateToEditProfile", methods=["POST"])
 def navigateToEditProfileAPI():
     try:
@@ -477,17 +492,17 @@ def navigateToEditProfileAPI():
         # return {"ERROR": str(e), "status": False}
         return render_template("error.html", error_message=str(e))
 
-
+# API to navigate to registration page
 @app.route("/navigateToRegistrationPage")
 def navigateToRegistrationPageAPI():
     return render_template("register.html", error_message="")
 
-
+# API to navigate to password reset page
 @app.route("/navigateToPasswordResetPage")
 def navigateToPasswordResetPageAPI():
     return render_template("reset_password.html", reset=False, status_message="")
 
-
+# API to navigate to user home
 @app.route("/navigateToHome", methods=["POST"])
 def navigateToHomeAPI():
     content = request.form
@@ -500,10 +515,14 @@ def navigateToHomeAPI():
     isimpersonatingasuser = login.isImpersonatingAsUser()
     return render_template("home.html", isAdmin=isAdmin, isimpersonatingasuser=isimpersonatingasuser, username=username, patient_id=patient_id, patient_data=patient_data)
 
-
+# API to navigate to Admin home
 @app.route("/navigateToAdminHome")
 def navigateToAdminHomeAPI():
+
+    # Class to Connect to Config File
     config = ConfigConnect()
+
+    # Fetching configuration Data
     dict_values = config.get_section_config("admin")
     username = dict_values["admin_username"]
     patient_id = int(dict_values["admin_id"])
@@ -511,7 +530,7 @@ def navigateToAdminHomeAPI():
     patient_data = login.getUserDetails(patient_id)
     return render_template("home.html", isAdmin=True, isimpersonatingasuser=True, username=username, patient_id=patient_id, patient_data=patient_data)
 
-
+# API to navigate to listing page
 @app.route("/navigateToListingPage", methods=["POST"])
 def navigateToListingPageAPI():
     content = request.form

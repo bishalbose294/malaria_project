@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 from app.results import Results
 from app.model_global import ModelClass
 from app.model_global import ModelConfig
@@ -18,18 +17,29 @@ import numpy as np
 import cv2
 import shutil
 
-
+# Class to Predict detect Malaria
 class MLProcess:
+
+    # Initialization Parameters
     def __init__(
         self,
     ):
+        # Class to Connect to Config File
         config = ConfigConnect()
+
+        # Fetching configuration Data
         root = config.get_section_config("root")["cwd"]
+
+        # Fetching configuration Data
         info_folder = config.get_section_config("DIR")["info_folder"]
+
+        # Fetching configuration Data
         name_of_file = config.get_section_config("FILE")["info"]
         info_file = os.path.join(root, info_folder, name_of_file)
         self.info = pd.read_csv(info_file)
 
+
+    # Method to Load image into memory
     def __load_image(
         self,
         cell_microscopy_result_id,
@@ -38,10 +48,13 @@ class MLProcess:
         result = Results()
         name_of_image = result.getNameOfImage(cell_microscopy_result_id)
 
+        # Class to Connect to Config File
         config = ConfigConnect()
 
-        # root = config.get_section_config("root")["cwd"]
-        data = config.get_section_config("ROOT")["data"]  # Addition
+        # Fetching configuration Data
+        data = config.get_section_config("ROOT")["data"] 
+
+        # Fetching configuration Data
         image_folder = config.get_section_config("DIR")["images_folder"]
 
         filePath = os.path.join(data, image_folder, name_of_image)
@@ -60,6 +73,8 @@ class MLProcess:
             image = image[..., :3]
         return image, name_of_image
 
+
+    # Method to extract bounding boxes
     def __extract_boxes(
         self,
         cell_microscopy_result_id,
@@ -82,9 +97,14 @@ class MLProcess:
             classes.append(class_name)
         return boxes, classes
 
-    def __load_mask(self, cell_microscopy_result_id):
 
+    # Method to load masks for images
+    def __load_mask(self, cell_microscopy_result_id):
+        
+        # Class for Project Constants
         const = AppConstants()
+
+        # Retrieve class ids from Constants File
         class_id_dict = const.class_ids()
 
         image, _ = self.__load_image(cell_microscopy_result_id)
@@ -103,6 +123,8 @@ class MLProcess:
             class_ids.append(class_id_dict[classes[i]])
         return masks, np.asarray(class_ids)
 
+
+    # Method to save prediction images to location
     def __save_prediction_image(
         self,
         image,
@@ -140,9 +162,13 @@ class MLProcess:
                 2,
             )
 
+        # Class to Connect to Config File
         config = ConfigConnect()
-        # root = config.get_section_config("Root")["cwd"]
-        data = config.get_section_config("ROOT")["data"]  # Addition
+        
+        # Fetching configuration Data
+        data = config.get_section_config("ROOT")["data"]
+
+        # Fetching configuration Data
         predicted_images_folder = config.get_section_config("dir")[
             "predicted_images_folder"
         ]
@@ -153,14 +179,21 @@ class MLProcess:
         )
         cv2.imwrite(image_save_location, masked_image)
 
+
+    # Method to save prediction into database
     def __save_prediction_to_db(
         self,
         cell_microscopy_result_id,
         boxes,
         class_names,
     ):
+        # Class for Project Constants
         const = AppConstants()
+
+        # Class to create Database Connection
         dbConnect = DbConnect()
+
+        # Retrieve table columns from Constants File
         columnList = const.detection_bbox_TableColumns()
 
         valuesList = list()
@@ -171,14 +204,23 @@ class MLProcess:
             valuesList.append([cell_microscopy_result_id, xmin_coord,
                               ymin_coord, xmax_coord, ymax_coord, category])
 
+
+        # Connect to Database
         dbConnect.createConnection()
+
+        # Connect to specified Schema
         dbConnect.setSchema("mca")
+
+        # Connect to specified Table
         dbConnect.setTableName("detection_bbox")
 
         dbConnect.insertRecords(columnList, valuesList)
 
+        # Close the Connection
         dbConnect.closeConnection()
 
+
+    # Method to Check if image needs retraining.
     def __checkIfImageNeedRetraining(self, cell_microscopy_result_id):
         result = Results()
         filename = result.getNameOfImage(cell_microscopy_result_id)
@@ -186,6 +228,8 @@ class MLProcess:
             return True
         return False
 
+
+    # Method to save newly uploaded images to location
     def __save_new_image(
         self,
         cell_microscopy_result_id,
@@ -193,13 +237,18 @@ class MLProcess:
         result = Results()
         fileName = result.getNameOfImage(cell_microscopy_result_id)
 
+        # Class to Connect to Config File
         config = ConfigConnect()
-        # root = config.get_section_config("Root")["cwd"]
-        data = config.get_section_config("ROOT")["data"]  # Addition
+        
+        # Fetching configuration Data
+        data = config.get_section_config("ROOT")["data"]
+
+        # Fetching configuration Data
         images_folder = config.get_section_config("dir")[
             "images_folder"
         ]
 
+        # Fetching configuration Data
         retrain_folder = config.get_section_config("dir")[
             "retrain_folder"
         ]
@@ -209,18 +258,33 @@ class MLProcess:
 
         shutil.copy(src, dest)
 
+        # Class to create Database Connection
         dbConnect = DbConnect()
+
+        # Connect to Database
         dbConnect.createConnection()
+
+        # Connect to specified Schema
         dbConnect.setSchema("mca")
+
+        # Connect to specified Table
         dbConnect.setTableName("cell_microscopy_result")
 
         updateColumn = "retrain"
         updateValue = True
+
+        # Defining the Primary Key for condition
         primaryKey = "id"
+
+        # Defining the Primary Key Value
         pkValue = cell_microscopy_result_id
         dbConnect.updateRecord(updateColumn, updateValue, primaryKey, pkValue)
+
+        # Close the Connection
         dbConnect.closeConnection()
 
+
+    # Method to predict malaria on given images
     def model_predict(
         self,
         cell_microscopy_result_id,
@@ -266,7 +330,10 @@ class MLProcess:
         masks = masks
         class_names = classes
 
+        # Class for Project Constants
         const = AppConstants()
+
+        # Retrieve class ids from Constants File
         class_id_dict = const.class_ids()
         infection_status = False
         freq = {}

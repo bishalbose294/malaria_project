@@ -1,4 +1,5 @@
 class AppConstants:
+    
     def login_TableColumns(
         self,
     ):

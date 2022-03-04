@@ -1,71 +1,113 @@
-from pathlib import Path
 import pdfkit
 from app.dbUtil import DbConnect
 from app.results import Results
 from app.configUtil import ConfigConnect
 import os
 from datetime import datetime
-
 from configuration.contstants import AppConstants
 
-
+# Class to generate Reports
 class Report:
 
+    # Method to check if report is generated
     def isReportGenerated(
         self,
         cell_microscopy_result_id,
     ):
+        # Class to create Database Connection
         dbConnect = DbConnect()
+
+        # Connect to Database
         dbConnect.createConnection()
+
+        # Connect to specified Schema
         dbConnect.setSchema("mca")
+
+        # Connect to specified Table
         dbConnect.setTableName("report")
 
         columnName = "cell_microscopy_result_id"
         columnValue = cell_microscopy_result_id
         existance = dbConnect.chechExistance(columnName, columnValue)
 
+        # Close the Connection
         dbConnect.closeConnection()
         return existance
 
-    def save_report_to_db(
+    # Method to save report to database
+    def __save_report_to_db(
         self,
         cell_microscopy_result_id,
         filename,
     ):
+        # Class for Project Constants
         const = AppConstants()
         recordCreationTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Retrieve table columns from Constants File
         columnList = const.report_TableColumns()
         columnValues = [cell_microscopy_result_id,
                         filename, recordCreationTime]
 
+        # Class to create Database Connection
         dbConnect = DbConnect()
+
+        # Connect to Database
         dbConnect.createConnection()
+
+        # Connect to specified Schema
         dbConnect.setSchema("mca")
+
+        # Connect to specified Table
         dbConnect.setTableName("report")
         dbConnect.insertRecord(columnList, columnValues)
+
+        # Close the Connection
         dbConnect.closeConnection()
 
+
+    # Method to retrieve report name
     def getReportName(
         self,
         cell_microscopy_result_id,
     ):
 
+        # Columns to be fetched from table
         columnList = ["report_filename"]
+
+        # Defining the Primary Key for condition
         primaryKey = "cell_microscopy_result_id"
+
+        # Defining the Primary Key Value
         pkValue = cell_microscopy_result_id
 
+        # Class to create Database Connection
         dbConnect = DbConnect()
+
+        # Connect to Database
         dbConnect.createConnection()
+
+        # Connect to specified Schema
         dbConnect.setSchema("mca")
+
+        # Connect to specified Table
         dbConnect.setTableName("report")
+
+        # Fetch Data from Database
         row = dbConnect.fetchOne(columnList, primaryKey, pkValue)
+
+        # Close the Connection
         dbConnect.closeConnection()
         return row[0]
 
+
+    # Method to generate a new report.
     def generateReport(
         self,
         cell_microscopy_result_id,
     ):
+
+        # Class to Connect to Config File
         config = ConfigConnect()
 
         result = Results()
@@ -74,8 +116,13 @@ class Report:
         patient_data = data_all["patient_data"]
         result_data = data_all["result_data"]
 
+        # Fetching configuration Data
         root = config.get_section_config("ROOT")["cwd"]
-        data = config.get_section_config("ROOT")["data"]  # Addition
+
+        # Fetching configuration Data
+        data = config.get_section_config("ROOT")["data"]
+
+        # Fetching configuration Data
         dict_values = config.get_section_config("DIR")
         raw_image_folder = dict_values["images_folder"]
         predicted_image_folder = dict_values["predicted_images_folder"]
@@ -83,6 +130,7 @@ class Report:
         name_of_pdf_report = str(cell_microscopy_result_id) + "_report.pdf"
         css_file_folder = dict_values["css_folder"]
 
+        # Fetching configuration Data
         css_file = config.get_section_config("FILE")["css"]
 
         raw_image_path = os.path.join(
@@ -116,11 +164,11 @@ class Report:
                     <link rel="stylesheet" href="{css_path}">
                 </head>
                 <body>
-                    <center>
-                        <h1> Smart Malaria Detection </h1>
-                        <h5>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
-                            - AI system to Detect & Classify Malaria Viruses from Blood Sample Images</h5>
-                    </center>
+                <center>
+                    <h1> Smart Malaria Detection </h1>
+                    <h5>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+                        - AI system to Detect & Classify Malaria Viruses from Blood Sample Images</h5>
+                </center>
                     <br /><br /><br />
                     <h2 align="center">{page_title_text}</h2>
                     <br /><br /><br />
@@ -131,82 +179,82 @@ class Report:
                                 <table class="styled-table">
                                 <tr>
                                     <td>
-                                        <b>Name:</b>
+                                        Name:
                                     </td>
                                     <td>
-                                        <i>{ patient_data["name"] }</i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Email:</b>
-                                    </td>
-                                    <td>
-                                        <i>{ patient_data["email"] }</i>
+                                        { patient_data["name"] }
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <b>Phone Number:</b>
+                                        Email:
                                     </td>
                                     <td>
-                                        <i>{ patient_data["phone_number"] }</i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>DOB:</b>
-                                    </td>
-                                    <td>
-                                        <i>{ patient_data["dob"] }</i>
+                                        { patient_data["email"] }
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <b>Age:</b>
+                                        Phone Number:
                                     </td>
                                     <td>
-                                        <i>{ patient_data["age"] }</i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Marital Status:</b>
-                                    </td>
-                                    <td>
-                                        <i>{ patient_data["marital_status"] }</i>
+                                        { patient_data["phone_number"] }
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <b>Address:</b>
+                                        DOB:
                                     </td>
                                     <td>
-                                        <i>{ patient_data["address"] }</i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>State:</b>
-                                    </td>
-                                    <td>
-                                        <i>{ patient_data["state"] }</i>
+                                        { patient_data["dob"] }
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <b>Country:</b>
+                                        Age:
                                     </td>
                                     <td>
-                                        <i>{ patient_data["country"] }</i>
+                                        { patient_data["age"] }
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <b>Pincode:</b>
+                                        Marital Status:
                                     </td>
                                     <td>
-                                        <i>{ patient_data["pincode"] }</i>
+                                        { patient_data["marital_status"] }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Address:
+                                    </td>
+                                    <td>
+                                        { patient_data["address"] }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        State:
+                                    </td>
+                                    <td>
+                                        { patient_data["state"] }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Country:
+                                    </td>
+                                    <td>
+                                        { patient_data["country"] }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Pincode:
+                                    </td>
+                                    <td>
+                                        { patient_data["pincode"] }
                                     </td>
                                 </tr>
                             </table>
@@ -291,12 +339,6 @@ class Report:
             "enable-local-file-access": None,
             "page-size": "A4",
             "encoding": "UTF-8",
-            # "margin-top": "10",
-            # "margin-right": "10",
-            # "margin-bottom": "10",
-            # "margin-left": "10",
-            # "outline-depth": "10",
-            # "no-outline": None,
         }
 
         pdfkit.from_string(
@@ -306,7 +348,7 @@ class Report:
             css=css_path,
         )
 
-        self.save_report_to_db(cell_microscopy_result_id, name_of_pdf_report)
+        self.__save_report_to_db(cell_microscopy_result_id, name_of_pdf_report)
         return (True, "Report Generated and Saved. Please download to view.")
 
     pass

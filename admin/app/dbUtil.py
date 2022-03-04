@@ -1,13 +1,18 @@
 import psycopg2
 from app.configUtil import ConfigConnect
 
-
+# Class to create Database Connection
 class DbConnect:
+
+    # Initialization Parameters
     def __init__(
         self,
     ):
-        cp = ConfigConnect()
-        dict = cp.get_section_config("DB")
+        # Class to Connect to Config File
+        config = ConfigConnect()
+
+        # Fetching configuration Data
+        dict = config.get_section_config("DB")
 
         self.database = dict["database"]
         self.user = dict["user"]
@@ -23,6 +28,7 @@ class DbConnect:
 
         pass
 
+    # Method to create connection to DB
     def createConnection(
         self,
     ):
@@ -46,6 +52,8 @@ class DbConnect:
         print("\nConnection Established...\n")
         self.__createCursor()
 
+
+    # Method to set Table Name
     def setTableName(
         self,
         tableName,
@@ -53,19 +61,25 @@ class DbConnect:
         self.tableName = tableName
         print("\nTable Name Changed to {}\n".format(tableName))
 
+
+    # Method to set Schema Name
     def setSchema(
         self,
         schema,
     ):
         self.schema = schema
         print("\nSchema Changed to {}\n".format(schema))
+    
 
+    # Method to create Cursor
     def __createCursor(
         self,
     ):
         self.cursor = self.conn.cursor()
         print("\nCursor Created...\n")
 
+
+    # Method to check if record exists
     def chechExistance(
         self,
         columnName,
@@ -87,6 +101,8 @@ class DbConnect:
             return False
         return True
 
+
+    # Method to fetch one record with given condition
     def fetchOne(
         self,
         columnList,
@@ -109,6 +125,8 @@ class DbConnect:
         print("\nRecord Fetched Successfully...\n")
         return row
 
+
+    # Method to fetch multiple records with given condition
     def fetchMultiple(
         self,
         columnList,
@@ -134,6 +152,8 @@ class DbConnect:
         print("\nRecords Fetched Successfully...\n")
         return row
 
+
+    # Method to fetch all record without any condition
     def fetchAll(
         self,
         columnList,
@@ -154,13 +174,15 @@ class DbConnect:
         print("\nRecords Fetched Successfully...\n")
         return row
 
+
+
     """
     conditions_dict = {
         "columnName" : columnValue,
         "columnName" : columnValue,
     }
     """
-
+    # Method to fetch multiple records with multiple conditions
     def fetchWithMultipleCondition(self, columnList, conditions_dict, orderBy="id"):
         conditions_list = list(conditions_dict.keys())
         query = str(
@@ -182,6 +204,77 @@ class DbConnect:
         print("\nRecords Fetched Successfully...\n")
         return row
 
+
+    # Method to insert one record
+    def insertRecord(
+        self,
+        columnList,
+        columnValues,
+    ):
+        query = (
+            "insert into "
+            + self.schema
+            + "."
+            + self.tableName
+            + " ("
+            + ",".join(columnList)
+            + ") VALUES ("
+            + ",".join(["%s"] * len(columnList))
+            + ")"
+        )
+        self.cursor.executemany(query, (columnValues,))
+        self.conn.commit()
+        print("\nRecord Inserted successfully...\n")
+
+
+    # Method to insert multiple records at once
+    def insertRecords(
+        self,
+        columnList,
+        valuesList,
+    ):
+        query = (
+            "insert into "
+            + self.schema
+            + "."
+            + self.tableName
+            + " ("
+            + ",".join(columnList)
+            + ") VALUES ("
+            + ",".join(["%s"] * len(columnList))
+            + ")"
+        )
+        self.cursor.executemany(query, (valuesList))
+        self.conn.commit()
+        count = self.cursor.rowcount
+        print("\n" + str(count) + " Record Inserted successfully...\n")
+
+
+    # Method to insert multiple records one by one
+    def insertRecordOneByOne(
+        self,
+        columnList,
+        valuesList,
+    ):
+        query = (
+            "insert into "
+            + self.schema
+            + "."
+            + self.tableName
+            + " ("
+            + ",".join(columnList)
+            + ") VALUES ("
+            + ",".join(["%s"] * len(columnList))
+            + ")"
+        )
+        for value in valuesList:
+            self.cursor.executemany(query, (value,))
+        self.conn.commit()
+        print("\nRecord Inserted successfully...\n")
+
+    
+    
+    # Method to update a record based on given condition
     def updateRecord(
         self,
         updateColumn,
@@ -212,92 +305,8 @@ class DbConnect:
         count = self.cursor.rowcount
         print("\n" + str(count) + " Record Updated successfully...\n")
 
-    def insertRecord(
-        self,
-        columnList,
-        columnValues,
-    ):
-        query = (
-            "insert into "
-            + self.schema
-            + "."
-            + self.tableName
-            + " ("
-            + ",".join(columnList)
-            + ") VALUES ("
-            + ",".join(["%s"] * len(columnList))
-            + ")"
-        )
-        self.cursor.executemany(query, (columnValues,))
-        self.conn.commit()
-        print("\nRecord Inserted successfully...\n")
-
-    def insertRecords(
-        self,
-        columnList,
-        valuesList,
-    ):
-        query = (
-            "insert into "
-            + self.schema
-            + "."
-            + self.tableName
-            + " ("
-            + ",".join(columnList)
-            + ") VALUES ("
-            + ",".join(["%s"] * len(columnList))
-            + ")"
-        )
-        self.cursor.executemany(query, (valuesList))
-        self.conn.commit()
-        count = self.cursor.rowcount
-        print("\n" + str(count) + " Record Inserted successfully...\n")
-
-    def insertRecordOneByOne(
-        self,
-        columnList,
-        valuesList,
-    ):
-        query = (
-            "insert into "
-            + self.schema
-            + "."
-            + self.tableName
-            + " ("
-            + ",".join(columnList)
-            + ") VALUES ("
-            + ",".join(["%s"] * len(columnList))
-            + ")"
-        )
-        for value in valuesList:
-            self.cursor.executemany(query, (value,))
-        self.conn.commit()
-        print("\nRecord Inserted successfully...\n")
-
-    def updateRecord(self, updateColumn, updateValue, primaryKey, pkValue):
-        query = (
-            "update "
-            + self.schema
-            + "."
-            + self.tableName
-            + " SET "
-            + str(updateColumn)
-            + " = %s"
-            + " where "
-            + str(primaryKey)
-            + " = %s"
-        )
-        self.cursor.execute(
-            query,
-            (
-                updateValue,
-                pkValue,
-            ),
-        )
-        self.conn.commit()
-        count = self.cursor.rowcount
-        print("\n" + str(count) + " Record Updated successfully...\n")
-
+    
+    # Method to update multiple records based on given condition
     def updateMultipleColumns(
         self, updateColumnList, updateValues, primaryKey, pkValue
     ):
@@ -317,12 +326,14 @@ class DbConnect:
         self.conn.commit()
         print("\n" + str(count) + " Record Updated successfully...\n")
 
+    # Method to close cursor
     def __closeCursor(
         self,
     ):
         self.cursor.close()
         print("\nCursor Closed...\n")
 
+    # Method to close connection
     def closeConnection(
         self,
     ):
